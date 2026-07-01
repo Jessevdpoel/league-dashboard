@@ -1,0 +1,78 @@
+import { notFound } from 'next/navigation';
+import { isPlatformRegion, type PlatformRegion } from '@/lib/riot/regions';
+import { getAccountByRiotId } from '@/lib/riot/account';
+import { getSummonerByPuuid } from '@/lib/riot/summoner';
+import { getLeagueEntriesBySummonerId } from '@/lib/riot/league';
+import { getMatchIdsByPuuid, getMatchById } from '@/lib/riot/match';
+import { parseRiotIdSegment } from '@/lib/riotId';
+import { toMatchSummary, computeTopChampions } from '@/lib/matchStats';
+import { RiotApiError } from '@/lib/riot/client';
+import { RankCard } from '@/components/RankCard';
+import { RecentFormCard } from '@/components/RecentFormCard';
+import { TopChampionsCard } from '@/components/TopChampionsCard';
+import { MatchHistory } from '@/components/MatchHistory';
+
+export default async function SummonerProfilePage({
+  params,
+}: {
+  params: { region: string; riotId: string };
+}) {
+  if (!isPlatformRegion(params.region)) notFound();
+  const platform: PlatformRegion = params.region;
+
+  const parsed = parseRiotIdSegment(params.riotId);
+  if (!parsed) notFound();
+
+  try {
+    const account = await getAccountByRiotId(platform, parsed.gameName, parsed.tagLine);
+    const summoner = await getSummonerByPuuid(platform, account.puuid);
+    const [leagueEntries, matchIds] = await Promise.all([
+      getLeagueEntriesBySummonerId(platform, summoner.id),
+      getMatchIdsByPuuid(platform, account.puuid, 10),
+    ]);
+    const matches = await Promise.all(matchIds.map((id) => getMatchById(platform, id)));
+    const summaries = matches.map((match) => toMatchSummary(match, account.puuid));
+    const soloQueueEntry = leagueEntries.find((entry) => entry.queueType === 'RANKED_SOLO_5x5') ?? null;
+    const recentResults = summaries.map((summary) => summary.win);
+    const championParticipants = matches
+      .map((match) => match.info.participants.find((p) => p.puuid === account.puuid))
+      .filter((p): p is NonNullable<typeof p> => Boolean(p));
+    const topChampions = computeTopChampions(championParticipants);
+
+    return (
+      <div className="flex flex-col gap-6">
+        <header>
+          <h1 className="text-3xl font-display text-gold-300">
+            {account.gameName}#{account.tagLine}
+          </h1>
+          <p className="text-gold-400">Level {summoner.summonerLevel}</p>
+        </header>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <RankCard entry={soloQueueEntry} />
+          <RecentFormCard results={recentResults} />
+          <TopChampionsCard champions={topChampions} />
+        </div>
+        <section>
+          <h2 className="text-xl font-display text-gold-300 mb-3">Match History</h2>
+          <MatchHistory matches={summaries} />
+        </section>
+      </div>
+    );
+  } catch (error) {
+    if (error instanceof RiotApiError && error.status === 404) {
+      return (
+        <p className="text-gold-100">
+          We couldn&apos;t find that summoner. Double check the name, tag, and region.
+        </p>
+      );
+    }
+    if (error instanceof RiotApiError && error.status === 429) {
+      return (
+        <p className="text-gold-100">
+          We&apos;re being rate limited by Riot right now. Please wait a moment and try again.
+        </p>
+      );
+    }
+    throw error;
+  }
+}
