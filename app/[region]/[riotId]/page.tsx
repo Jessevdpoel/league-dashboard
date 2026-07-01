@@ -15,12 +15,13 @@ import { MatchHistory } from '@/components/MatchHistory';
 export default async function SummonerProfilePage({
   params,
 }: {
-  params: { region: string; riotId: string };
+  params: Promise<{ region: string; riotId: string }>;
 }) {
-  if (!isPlatformRegion(params.region)) notFound();
-  const platform: PlatformRegion = params.region;
+  const { region, riotId } = await params;
+  if (!isPlatformRegion(region)) notFound();
+  const platform: PlatformRegion = region;
 
-  const parsed = parseRiotIdSegment(params.riotId);
+  const parsed = parseRiotIdSegment(riotId);
   if (!parsed) notFound();
 
   try {

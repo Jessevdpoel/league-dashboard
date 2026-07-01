@@ -12,7 +12,7 @@ describe('GET /api/matches/[matchId]', () => {
       info: { gameCreation: 0, gameDuration: 0, queueId: 420, participants: [] },
     });
     const response = await GET(new Request('http://localhost/api/matches/NA1_1'), {
-      params: { matchId: 'NA1_1' },
+      params: Promise.resolve({ matchId: 'NA1_1' }),
     });
     expect(response.status).toBe(200);
     const body = await response.json();
@@ -23,14 +23,14 @@ describe('GET /api/matches/[matchId]', () => {
   it('returns 404 when Riot reports the match was not found', async () => {
     (getMatchById as ReturnType<typeof vi.fn>).mockRejectedValue(new RiotApiError('Not found', 404));
     const response = await GET(new Request('http://localhost/api/matches/NA1_2'), {
-      params: { matchId: 'NA1_2' },
+      params: Promise.resolve({ matchId: 'NA1_2' }),
     });
     expect(response.status).toBe(404);
   });
 
   it('returns 500 for an unrecognized match id prefix', async () => {
     const response = await GET(new Request('http://localhost/api/matches/ZZ9_1'), {
-      params: { matchId: 'ZZ9_1' },
+      params: Promise.resolve({ matchId: 'ZZ9_1' }),
     });
     expect(response.status).toBe(500);
   });
