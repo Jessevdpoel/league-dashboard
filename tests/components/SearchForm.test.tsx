@@ -32,4 +32,11 @@ describe('SearchForm', () => {
     fireEvent.click(screen.getByText('Search'));
     expect(push).toHaveBeenCalledWith('/euw1/Foo-Bar');
   });
+
+  it('escapes hyphens within the game name so the separator stays unambiguous', () => {
+    render(<SearchForm />);
+    fireEvent.change(screen.getByLabelText('Riot ID'), { target: { value: 'Foo-Bar#NA1' } });
+    fireEvent.click(screen.getByText('Search'));
+    expect(push).toHaveBeenCalledWith('/na1/Foo%2DBar-NA1');
+  });
 });

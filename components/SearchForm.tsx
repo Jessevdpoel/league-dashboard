@@ -13,6 +13,10 @@ const REGION_LABELS: Record<PlatformRegion, string> = {
   br1: 'Brazil',
 };
 
+function encodeRiotIdPart(part: string): string {
+  return encodeURIComponent(part).replace(/-/g, '%2D');
+}
+
 export function SearchForm() {
   const router = useRouter();
   const [region, setRegion] = useState<PlatformRegion>('na1');
@@ -28,7 +32,7 @@ export function SearchForm() {
     }
     setError(null);
     const [gameName, tagLine] = parts;
-    router.push(`/${region}/${encodeURIComponent(gameName.trim())}-${encodeURIComponent(tagLine.trim())}`);
+    router.push(`/${region}/${encodeRiotIdPart(gameName.trim())}-${encodeRiotIdPart(tagLine.trim())}`);
   }
 
   return (
