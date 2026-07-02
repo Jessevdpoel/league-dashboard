@@ -1,6 +1,6 @@
 'use client';
 
-export default function ProfileError({ error, reset }: { error: Error; reset: () => void }) {
+export default function ProfileError({ error: _error, reset }: { error: Error; reset: () => void }) {
   return (
     <div className="text-gold-100">
       <p>Something went wrong loading this profile.</p>
