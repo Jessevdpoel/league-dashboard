@@ -5,23 +5,30 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        charcoal: {
-          800: '#2a2622',
-          900: '#1c1a17',
-          950: '#121110',
+        ink: {
+          950: '#070c1c',
+          900: '#0d1730',
         },
-        gold: {
-          100: '#f5e9c8',
-          200: '#e9d6a0',
-          300: '#dcc178',
-          400: '#c9a24f',
-          500: '#b3893a',
-          700: '#8a6a2c',
+        line: {
+          subtle: '#1c2f5c',
+          strong: '#2a4a8c',
         },
+        cyan: {
+          400: '#38e8ff',
+        },
+        indigo: {
+          500: '#3a4bd6',
+        },
+        frost: {
+          100: '#eaf6ff',
+          300: '#cfe4ff',
+          500: '#9db3d9',
+        },
+        win: '#3af0b0',
+        loss: '#ff5f5f',
       },
       fontFamily: {
-        display: ['var(--font-display)', 'serif'],
-        sans: ['var(--font-body)', 'sans-serif'],
+        sans: ['var(--font-rajdhani)', 'sans-serif'],
       },
     },
   },

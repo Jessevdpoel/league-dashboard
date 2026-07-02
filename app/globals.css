@@ -3,5 +3,5 @@
 @tailwind utilities;
 
 body {
-  @apply bg-charcoal-950 text-gold-100 font-sans;
+  @apply bg-ink-950 text-frost-100 font-sans;
 }
