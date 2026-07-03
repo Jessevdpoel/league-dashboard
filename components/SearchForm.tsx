@@ -17,7 +17,11 @@ function encodeRiotIdPart(part: string): string {
   return encodeURIComponent(part).replace(/-/g, '%2D');
 }
 
-export function SearchForm() {
+export interface SearchFormProps {
+  variant?: 'hero' | 'compact';
+}
+
+export function SearchForm({ variant = 'hero' }: SearchFormProps) {
   const router = useRouter();
   const [region, setRegion] = useState<PlatformRegion>('na1');
   const [riotId, setRiotId] = useState('');
@@ -35,38 +39,49 @@ export function SearchForm() {
     router.push(`/${region}/${encodeRiotIdPart(gameName.trim())}-${encodeRiotIdPart(tagLine.trim())}`);
   }
 
+  const isHero = variant === 'hero';
+
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-      <label className="flex flex-col gap-1 text-sm text-gold-300">
-        Region
+    <form onSubmit={handleSubmit} className="flex flex-col gap-2">
+      <div
+        className={`flex items-center gap-1 rounded-xl border border-line-strong bg-ink-900 p-1.5 ${
+          isHero ? 'shadow-[0_0_24px_rgba(56,232,255,0.25)]' : ''
+        }`}
+      >
         <select
           value={region}
           onChange={(event) => setRegion(event.target.value as PlatformRegion)}
           aria-label="Region"
-          className="rounded bg-charcoal-800 text-gold-200 px-3 py-2"
+          className={`bg-transparent text-frost-500 font-semibold border-r border-line-subtle px-3 ${
+            isHero ? 'py-2.5 text-sm' : 'py-1.5 text-xs'
+          }`}
         >
           {PLATFORM_REGIONS.map((platform) => (
-            <option key={platform} value={platform}>
+            <option key={platform} value={platform} className="bg-ink-900">
               {REGION_LABELS[platform]}
             </option>
           ))}
         </select>
-      </label>
-      <label className="flex flex-col gap-1 text-sm text-gold-300">
-        Riot ID
         <input
           value={riotId}
           onChange={(event) => setRiotId(event.target.value)}
           placeholder="GameName#Tag"
           aria-label="Riot ID"
-          className="rounded bg-charcoal-800 text-gold-200 px-3 py-2"
+          className={`flex-1 bg-transparent text-frost-100 placeholder:text-frost-500/60 outline-none px-3 ${
+            isHero ? 'py-2.5 text-sm' : 'py-1.5 text-xs w-40'
+          }`}
         />
-      </label>
-      <button type="submit" className="rounded bg-gold-500 text-charcoal-900 px-3 py-2 font-semibold">
-        Search
-      </button>
+        <button
+          type="submit"
+          className={`uppercase rounded-lg bg-gradient-to-br from-cyan-400 to-indigo-500 font-bold text-ink-950 tracking-wide ${
+            isHero ? 'px-6 py-2.5 text-sm' : 'px-4 py-1.5 text-xs'
+          }`}
+        >
+          Search
+        </button>
+      </div>
       {error && (
-        <p role="alert" className="text-red-400 text-sm">
+        <p role="alert" className="text-loss text-sm font-semibold">
           {error}
         </p>
       )}
