@@ -1,4 +1,5 @@
 import type { LeagueEntryDto } from '@/lib/riot/types';
+import { rankEmblemUrl } from '@/lib/dataDragon';
 
 export interface RankCardProps {
   entry: LeagueEntryDto | null;
@@ -7,9 +8,9 @@ export interface RankCardProps {
 export function RankCard({ entry }: RankCardProps) {
   if (!entry) {
     return (
-      <section aria-label="Ranked stats" className="rounded-lg bg-charcoal-800 p-5 text-gold-100">
-        <p className="text-sm uppercase tracking-wide text-gold-400">Ranked Solo</p>
-        <p className="text-xl font-display">Unranked</p>
+      <section aria-label="Ranked stats" className="rounded-lg bg-ink-900 border border-line-subtle p-5">
+        <p className="text-xs uppercase tracking-wide text-cyan-400 font-semibold">Ranked Solo</p>
+        <p className="text-xl font-bold text-frost-100 mt-1">Unranked</p>
       </section>
     );
   }
@@ -18,15 +19,28 @@ export function RankCard({ entry }: RankCardProps) {
   const winRate = totalGames === 0 ? 0 : Math.round((entry.wins / totalGames) * 100);
 
   return (
-    <section aria-label="Ranked stats" className="rounded-lg bg-charcoal-800 p-5 text-gold-100">
-      <p className="text-sm uppercase tracking-wide text-gold-400">Ranked Solo</p>
-      <p className="text-xl font-display">
-        {entry.tier} {entry.rank}
-      </p>
-      <p className="text-sm">{entry.leaguePoints} LP</p>
-      <p className="text-sm">
-        {entry.wins}W {entry.losses}L ({winRate}% win rate)
-      </p>
+    <section
+      aria-label="Ranked stats"
+      className="rounded-lg bg-ink-900 border border-line-subtle p-5 flex items-center gap-4"
+    >
+      <img
+        src={rankEmblemUrl(entry.tier)}
+        alt={`${entry.tier} emblem`}
+        className="w-14 h-14"
+        onError={(event) => {
+          event.currentTarget.style.display = 'none';
+        }}
+      />
+      <div>
+        <p className="text-xs uppercase tracking-wide text-cyan-400 font-semibold">Ranked Solo</p>
+        <p className="text-xl font-bold text-frost-100 mt-1">
+          {entry.tier} {entry.rank}
+        </p>
+        <p className="text-sm text-frost-500 font-semibold">{entry.leaguePoints} LP</p>
+        <p className="text-sm text-frost-500 font-semibold">
+          {entry.wins}W {entry.losses}L ({winRate}% win rate)
+        </p>
+      </div>
     </section>
   );
 }

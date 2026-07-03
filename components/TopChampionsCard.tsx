@@ -1,20 +1,30 @@
 import type { ChampionStat } from '@/lib/matchStats';
+import { championIconUrl } from '@/lib/dataDragon';
 
 export interface TopChampionsCardProps {
   champions: ChampionStat[];
+  version: string;
 }
 
-export function TopChampionsCard({ champions }: TopChampionsCardProps) {
+export function TopChampionsCard({ champions, version }: TopChampionsCardProps) {
   return (
-    <section aria-label="Top champions" className="rounded-lg bg-charcoal-800 p-5 text-gold-100">
-      <p className="text-sm uppercase tracking-wide text-gold-400">Top Champions</p>
+    <section aria-label="Top champions" className="rounded-lg bg-ink-900 border border-line-subtle p-5">
+      <p className="text-xs uppercase tracking-wide text-cyan-400 font-semibold">Top Champions</p>
       <ul className="mt-2 flex flex-col gap-2">
         {champions.map((champion) => {
           const winRate = champion.games === 0 ? 0 : Math.round((champion.wins / champion.games) * 100);
           return (
-            <li key={champion.championName} className="flex justify-between text-sm">
-              <span>{champion.championName}</span>
-              <span>
+            <li key={champion.championName} className="flex items-center gap-2 text-sm">
+              <img
+                src={championIconUrl(version, champion.championName)}
+                alt={champion.championName}
+                className="w-8 h-8 rounded-md border border-line-strong"
+                onError={(event) => {
+                  event.currentTarget.style.display = 'none';
+                }}
+              />
+              <span className="text-frost-300 font-semibold flex-1">{champion.championName}</span>
+              <span className="text-frost-500">
                 {champion.games} games · {winRate}%
               </span>
             </li>
