@@ -64,7 +64,9 @@ export function MatchSummaryRow({ summary, version }: MatchSummaryRowProps) {
           {[summary.summoner1Id, summary.summoner2Id].map((spellId, index) => {
             const url = summonerSpellIconUrl(version, spellId);
             if (!url) return null;
-            return <img key={index} src={url} alt="" className="w-[18px] h-[18px] rounded" />;
+            return <img key={index} src={url} alt="" className="w-[18px] h-[18px] rounded" onError={(event) => {
+              event.currentTarget.style.display = 'none';
+            }} />;
           })}
         </div>
         <span className="text-sm text-frost-300 font-semibold">
@@ -85,6 +87,9 @@ export function MatchSummaryRow({ summary, version }: MatchSummaryRowProps) {
                 src={url}
                 alt=""
                 className="w-[26px] h-[26px] rounded border border-line-strong"
+                onError={(event) => {
+                  event.currentTarget.style.display = 'none';
+                }}
               />
             );
           })}
