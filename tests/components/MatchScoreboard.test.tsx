@@ -30,7 +30,7 @@ function fakeParticipant(overrides: Partial<ParticipantDto>): ParticipantDto {
 }
 
 describe('MatchScoreboard', () => {
-  it('splits participants into Blue Team and Red Team tables', () => {
+  it('splits participants into Blue Team and Red Team tables with champion icons', () => {
     const match: MatchDto = {
       metadata: { matchId: 'NA1_1', participants: [] },
       info: {
@@ -43,10 +43,11 @@ describe('MatchScoreboard', () => {
         ],
       },
     };
-    render(<MatchScoreboard match={match} />);
+    render(<MatchScoreboard match={match} version="14.23.1" />);
     expect(screen.getByText('Blue Team')).toBeInTheDocument();
     expect(screen.getByText('Red Team')).toBeInTheDocument();
     expect(screen.getByText('BluePlayer#NA1')).toBeInTheDocument();
     expect(screen.getByText('RedPlayer#NA1')).toBeInTheDocument();
+    expect(screen.getAllByAltText('Ahri')).toHaveLength(2);
   });
 });

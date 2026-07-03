@@ -29,6 +29,8 @@ export interface MatchSummary {
   assists: number;
   win: boolean;
   items: number[];
+  summoner1Id: number;
+  summoner2Id: number;
   durationSeconds: number;
   queueId: number;
   gameCreation: number;
@@ -55,6 +57,8 @@ export function toMatchSummary(match: MatchDto, puuid: string): MatchSummary {
       participant.item5,
       participant.item6,
     ],
+    summoner1Id: participant.summoner1Id,
+    summoner2Id: participant.summoner2Id,
     durationSeconds: match.info.gameDuration,
     queueId: match.info.queueId,
     gameCreation: match.info.gameCreation,

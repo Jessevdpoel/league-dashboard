@@ -60,7 +60,16 @@ describe('toMatchSummary', () => {
 
   it('extracts the searched player as a MatchSummary', () => {
     const match = fakeMatch(
-      fakeParticipant({ puuid: 'me', championName: 'Ahri', kills: 5, deaths: 2, assists: 8, win: true })
+      fakeParticipant({
+        puuid: 'me',
+        championName: 'Ahri',
+        kills: 5,
+        deaths: 2,
+        assists: 8,
+        win: true,
+        summoner1Id: 4,
+        summoner2Id: 7,
+      })
     );
     const summary = toMatchSummary(match, 'me');
     expect(summary).toEqual({
@@ -71,6 +80,8 @@ describe('toMatchSummary', () => {
       assists: 8,
       win: true,
       items: [0, 0, 0, 0, 0, 0, 0],
+      summoner1Id: 4,
+      summoner2Id: 7,
       durationSeconds: 1500,
       queueId: 420,
       gameCreation: 1000,
