@@ -7,6 +7,7 @@ import { getMatchIdsByPuuid, getMatchById } from '@/lib/riot/match';
 import { parseRiotIdSegment } from '@/lib/riotId';
 import { toMatchSummary, computeTopChampions } from '@/lib/matchStats';
 import { RiotApiError } from '@/lib/riot/client';
+import { getLatestDDragonVersion } from '@/lib/dataDragon';
 import { RankCard } from '@/components/RankCard';
 import { RecentFormCard } from '@/components/RecentFormCard';
 import { TopChampionsCard } from '@/components/TopChampionsCard';
@@ -27,9 +28,10 @@ export default async function SummonerProfilePage({
   try {
     const account = await getAccountByRiotId(platform, parsed.gameName, parsed.tagLine);
     const summoner = await getSummonerByPuuid(platform, account.puuid);
-    const [leagueEntries, matchIds] = await Promise.all([
+    const [leagueEntries, matchIds, version] = await Promise.all([
       getLeagueEntriesBySummonerId(platform, summoner.id),
       getMatchIdsByPuuid(platform, account.puuid, 10),
+      getLatestDDragonVersion(),
     ]);
     const matches = await Promise.all(matchIds.map((id) => getMatchById(platform, id)));
     const summaries = matches.map((match) => toMatchSummary(match, account.puuid));
@@ -41,35 +43,35 @@ export default async function SummonerProfilePage({
     const topChampions = computeTopChampions(championParticipants);
 
     return (
-      <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-6 p-8 max-w-5xl mx-auto">
         <header>
-          <h1 className="text-3xl font-display text-gold-300">
+          <h1 className="text-3xl font-bold text-frost-100">
             {account.gameName}#{account.tagLine}
           </h1>
-          <p className="text-gold-400">Level {summoner.summonerLevel}</p>
+          <p className="text-frost-500 font-semibold">Level {summoner.summonerLevel}</p>
         </header>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <RankCard entry={soloQueueEntry} />
           <RecentFormCard results={recentResults} />
-          <TopChampionsCard champions={topChampions} />
+          <TopChampionsCard champions={topChampions} version={version} />
         </div>
         <section>
-          <h2 className="text-xl font-display text-gold-300 mb-3">Match History</h2>
-          <MatchHistory matches={summaries} />
+          <h2 className="text-xl font-bold text-frost-100 mb-3">Match History</h2>
+          <MatchHistory matches={summaries} version={version} />
         </section>
       </div>
     );
   } catch (error) {
     if (error instanceof RiotApiError && error.status === 404) {
       return (
-        <p className="text-gold-100">
+        <p className="text-frost-100 p-8">
           We couldn&apos;t find that summoner. Double check the name, tag, and region.
         </p>
       );
     }
     if (error instanceof RiotApiError && error.status === 429) {
       return (
-        <p className="text-gold-100">
+        <p className="text-frost-100 p-8">
           We&apos;re being rate limited by Riot right now. Please wait a moment and try again.
         </p>
       );
