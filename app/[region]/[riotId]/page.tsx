@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation';
 import { isPlatformRegion, type PlatformRegion } from '@/lib/riot/regions';
 import { getAccountByRiotId } from '@/lib/riot/account';
 import { getSummonerByPuuid } from '@/lib/riot/summoner';
-import { getLeagueEntriesBySummonerId } from '@/lib/riot/league';
+import { getLeagueEntriesByPuuid } from '@/lib/riot/league';
 import { getMatchIdsByPuuid, getMatchById } from '@/lib/riot/match';
 import { parseRiotIdSegment } from '@/lib/riotId';
 import { toMatchSummary, computeTopChampions } from '@/lib/matchStats';
@@ -29,7 +29,7 @@ export default async function SummonerProfilePage({
     const account = await getAccountByRiotId(platform, parsed.gameName, parsed.tagLine);
     const summoner = await getSummonerByPuuid(platform, account.puuid);
     const [leagueEntries, matchIds, version] = await Promise.all([
-      getLeagueEntriesBySummonerId(platform, summoner.id),
+      getLeagueEntriesByPuuid(platform, account.puuid),
       getMatchIdsByPuuid(platform, account.puuid, 10),
       getLatestDDragonVersion(),
     ]);

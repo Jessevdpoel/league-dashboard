@@ -2,10 +2,10 @@ import { riotClient } from './client';
 import type { PlatformRegion } from './regions';
 import type { LeagueEntryDto } from './types';
 
-export function getLeagueEntriesBySummonerId(
+export function getLeagueEntriesByPuuid(
   platform: PlatformRegion,
-  summonerId: string
+  puuid: string
 ): Promise<LeagueEntryDto[]> {
-  const path = `/lol/league/v4/entries/by-summoner/${summonerId}`;
+  const path = `/lol/league/v4/entries/by-puuid/${puuid}`;
   return riotClient.platformFetch<LeagueEntryDto[]>(platform, path, { revalidateSeconds: 60 });
 }

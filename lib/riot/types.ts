@@ -5,8 +5,6 @@ export interface AccountDto {
 }
 
 export interface SummonerDto {
-  id: string;
-  accountId: string;
   puuid: string;
   profileIconId: number;
   summonerLevel: number;

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { riotClient } from '../../lib/riot/client';
-import { getLeagueEntriesBySummonerId } from '../../lib/riot/league';
+import { getLeagueEntriesByPuuid } from '../../lib/riot/league';
 
 vi.mock('../../lib/riot/client', () => ({
   riotClient: {
@@ -10,12 +10,12 @@ vi.mock('../../lib/riot/client', () => ({
   },
 }));
 
-describe('getLeagueEntriesBySummonerId', () => {
-  it('requests the platform league-entries-by-summoner endpoint', async () => {
-    const result = await getLeagueEntriesBySummonerId('na1', 'sid');
+describe('getLeagueEntriesByPuuid', () => {
+  it('requests the platform league-entries-by-puuid endpoint', async () => {
+    const result = await getLeagueEntriesByPuuid('na1', 'abc-puuid');
     expect(riotClient.platformFetch).toHaveBeenCalledWith(
       'na1',
-      '/lol/league/v4/entries/by-summoner/sid',
+      '/lol/league/v4/entries/by-puuid/abc-puuid',
       { revalidateSeconds: 60 }
     );
     expect(result).toHaveLength(1);
