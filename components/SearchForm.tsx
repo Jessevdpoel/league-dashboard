@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { PLATFORM_REGIONS, defaultTagForRegion, type PlatformRegion } from '@/lib/riot/regions';
 
@@ -12,6 +12,13 @@ const REGION_LABELS: Record<PlatformRegion, string> = {
   jp1: 'Japan',
   br1: 'Brazil',
 };
+
+const SUGGEST_DEBOUNCE_MS = 250;
+
+interface RiotIdSuggestion {
+  gameName: string;
+  tagLine: string;
+}
 
 function encodeRiotIdPart(part: string): string {
   return encodeURIComponent(part).replace(/-/g, '%2D');
@@ -26,9 +33,35 @@ export function SearchForm({ variant = 'hero' }: SearchFormProps) {
   const [region, setRegion] = useState<PlatformRegion>('na1');
   const [riotId, setRiotId] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [suggestions, setSuggestions] = useState<RiotIdSuggestion[]>([]);
+  // Discards responses that arrive after a newer request was issued.
+  const requestSeq = useRef(0);
+
+  useEffect(() => {
+    const query = riotId.trim();
+    if (query.length < 2 || query.includes('#')) {
+      setSuggestions([]);
+      return;
+    }
+    const seq = ++requestSeq.current;
+    const timer = setTimeout(async () => {
+      try {
+        const response = await fetch(
+          `/api/riot-ids/suggest?q=${encodeURIComponent(query)}&region=${region}`
+        );
+        if (!response.ok) return;
+        const body = (await response.json()) as { suggestions: RiotIdSuggestion[] };
+        if (seq === requestSeq.current) setSuggestions(body.suggestions);
+      } catch {
+        // Best-effort autocomplete: stay silent on network failure.
+      }
+    }, SUGGEST_DEBOUNCE_MS);
+    return () => clearTimeout(timer);
+  }, [riotId, region]);
 
   function navigateTo(gameName: string, tagLine: string) {
     setError(null);
+    setSuggestions([]);
     router.push(`/${region}/${encodeRiotIdPart(gameName)}-${encodeRiotIdPart(tagLine)}`);
   }
 
@@ -51,7 +84,7 @@ export function SearchForm({ variant = 'hero' }: SearchFormProps) {
   const isHero = variant === 'hero';
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-2">
+    <form onSubmit={handleSubmit} className="relative flex flex-col gap-2">
       <div
         className={`flex items-center gap-1 rounded-xl border border-line-strong bg-ink-900 p-1.5 ${
           isHero ? 'shadow-[0_0_24px_rgba(56,232,255,0.25)]' : ''
@@ -76,6 +109,7 @@ export function SearchForm({ variant = 'hero' }: SearchFormProps) {
           onChange={(event) => setRiotId(event.target.value)}
           placeholder="GameName#Tag (tag optional)"
           aria-label="Riot ID"
+          autoComplete="off"
           className={`flex-1 bg-transparent text-frost-100 placeholder:text-frost-500/60 outline-none px-3 ${
             isHero ? 'py-2.5 text-sm' : 'py-1.5 text-xs w-40'
           }`}
@@ -89,6 +123,24 @@ export function SearchForm({ variant = 'hero' }: SearchFormProps) {
           Search
         </button>
       </div>
+      {suggestions.length > 0 && (
+        <ul
+          aria-label="Riot ID suggestions"
+          className="absolute top-full left-0 right-0 z-20 mt-1 overflow-hidden rounded-xl border border-line-strong bg-ink-900 shadow-lg"
+        >
+          {suggestions.map((suggestion) => (
+            <li key={`${suggestion.gameName}#${suggestion.tagLine}`}>
+              <button
+                type="button"
+                onClick={() => navigateTo(suggestion.gameName, suggestion.tagLine)}
+                className="w-full px-4 py-2 text-left text-sm text-frost-100 hover:bg-ink-950"
+              >
+                {`${suggestion.gameName}#${suggestion.tagLine}`}
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
       {error && (
         <p role="alert" className="text-loss text-sm font-semibold">
           {error}
