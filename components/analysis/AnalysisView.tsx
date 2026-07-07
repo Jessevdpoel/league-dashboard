@@ -8,6 +8,7 @@ import type {
   AnalysisStrength,
 } from '@/lib/analysis/analysisOutput';
 import { championIconUrl } from '@/lib/dataDragon';
+import { AdSlot } from './AdSlot';
 
 export interface AnalysisViewProps {
   output: AnalysisOutput;
@@ -106,18 +107,6 @@ function Card({
         const f = findingsById.get(ref);
         return f ? <NumberChips key={ref} finding={f} /> : null;
       })}
-    </div>
-  );
-}
-
-/** Reserved fixed-height ad slot. No layout shift, no ads inside cards (04/05). */
-function AdSlot({ label }: { label: string }) {
-  return (
-    <div
-      className="flex h-[90px] items-center justify-center rounded-lg border border-dashed border-line-subtle text-xs text-frost-500"
-      aria-hidden
-    >
-      {label}
     </div>
   );
 }
