@@ -1,5 +1,6 @@
 import type { ChampionStat } from '@/lib/matchStats';
 import { championIconUrl } from '@/lib/dataDragon';
+import { IconImg } from './IconImg';
 
 export interface TopChampionsCardProps {
   champions: ChampionStat[];
@@ -15,13 +16,10 @@ export function TopChampionsCard({ champions, version }: TopChampionsCardProps) 
           const winRate = champion.games === 0 ? 0 : Math.round((champion.wins / champion.games) * 100);
           return (
             <li key={champion.championName} className="flex items-center gap-2 text-sm">
-              <img
+              <IconImg
                 src={championIconUrl(version, champion.championName)}
                 alt={champion.championName}
                 className="w-8 h-8 rounded-md border border-line-strong"
-                onError={(event) => {
-                  event.currentTarget.style.display = 'none';
-                }}
               />
               <span className="text-frost-300 font-semibold flex-1">{champion.championName}</span>
               <span className="text-frost-500">

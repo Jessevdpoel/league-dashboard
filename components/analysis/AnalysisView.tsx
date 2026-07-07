@@ -9,6 +9,7 @@ import type {
 } from '@/lib/analysis/analysisOutput';
 import { championIconUrl } from '@/lib/dataDragon';
 import { AdSlot } from './AdSlot';
+import { IconImg } from '../IconImg';
 
 export interface AnalysisViewProps {
   output: AnalysisOutput;
@@ -120,13 +121,10 @@ export function AnalysisView({ output, factSheet, degraded, kda, version, basePa
     <div className="flex flex-col gap-6">
       {/* 1. Header */}
       <header className="flex items-center gap-4">
-        <img
+        <IconImg
           src={championIconUrl(version, context.champion)}
           alt={context.champion}
           className="h-16 w-16 rounded-lg border border-line-strong"
-          onError={(e) => {
-            (e.currentTarget as HTMLImageElement).style.display = 'none';
-          }}
         />
         <div>
           <div className="flex items-center gap-3">

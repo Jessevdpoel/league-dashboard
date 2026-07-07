@@ -1,5 +1,6 @@
 import type { LeagueEntryDto } from '@/lib/riot/types';
 import { rankEmblemUrl } from '@/lib/dataDragon';
+import { IconImg } from './IconImg';
 
 export interface RankCardProps {
   entry: LeagueEntryDto | null;
@@ -23,13 +24,10 @@ export function RankCard({ entry }: RankCardProps) {
       aria-label="Ranked stats"
       className="rounded-lg bg-ink-900 border border-line-subtle p-5 flex items-center gap-4"
     >
-      <img
+      <IconImg
         src={rankEmblemUrl(entry.tier)}
         alt={`${entry.tier} emblem`}
         className="w-14 h-14"
-        onError={(event) => {
-          event.currentTarget.style.display = 'none';
-        }}
       />
       <div>
         <p className="text-xs uppercase tracking-wide text-cyan-400 font-semibold">Ranked Solo</p>

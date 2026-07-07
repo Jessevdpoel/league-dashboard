@@ -1,5 +1,6 @@
 import type { MatchDto, ParticipantDto } from '@/lib/riot/types';
 import { championIconUrl } from '@/lib/dataDragon';
+import { IconImg } from './IconImg';
 
 export interface MatchScoreboardProps {
   match: MatchDto;
@@ -27,13 +28,10 @@ function TeamTable({ team, label, version }: { team: ParticipantDto[]; label: st
             </td>
             <td>
               <div className="flex items-center gap-2">
-                <img
+                <IconImg
                   src={championIconUrl(version, participant.championName)}
                   alt={participant.championName}
                   className="w-6 h-6 rounded border border-line-strong"
-                  onError={(event) => {
-                    event.currentTarget.style.display = 'none';
-                  }}
                 />
                 <span className="text-frost-300">{participant.championName}</span>
               </div>
