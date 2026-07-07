@@ -1,0 +1,92 @@
+// Match Insights persistence (Phase 0 foundation).
+// Target: Supabase Postgres. Provide DATABASE_URL (pooled, pgbouncer) and
+// DIRECT_URL (direct 5432, used for migrations) — see .env.example.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+/// Single | 20-game trend analysis.
+enum AnalysisType {
+  single
+  trend
+}
+
+/// Immutable raw Match-V5 match payload, cached once per matchId.
+model MatchRaw {
+  matchId   String   @id @map("match_id")
+  region    String
+  patch     String
+  fetchedAt DateTime @default(now()) @map("fetched_at")
+  rawJson   Json     @map("raw_json")
+
+  @@map("matches_raw")
+}
+
+/// Immutable raw Match-V5 timeline payload (largest payload; fetched on demand).
+model TimelineRaw {
+  matchId   String   @id @map("match_id")
+  fetchedAt DateTime @default(now()) @map("fetched_at")
+  rawJson   Json     @map("raw_json")
+
+  @@map("timelines_raw")
+}
+
+/// Extracted per-participant metrics for one match. Dimension columns are typed;
+/// the numeric metric set (defined by the Phase 1 stats engine, 02-stats-engine.md)
+/// lives in `metrics` JSONB so new metrics don't require a migration each time.
+model ParticipantFacts {
+  matchId    String   @map("match_id")
+  puuid      String
+  role       String
+  championId Int      @map("champion_id")
+  patch      String
+  rankTier   String   @map("rank_tier")
+  metrics    Json
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@id([matchId, puuid])
+  @@index([patch, rankTier, role])
+  @@map("participant_facts")
+}
+
+/// Permanent cache of LLM analyses. A finished match never changes, so keyed by
+/// (puuid, matchId, type, promptVersion). Token/cost columns track spend per row.
+model Analysis {
+  id            String       @id @default(cuid())
+  puuid         String
+  matchId       String?      @map("match_id")
+  type          AnalysisType
+  promptVersion String       @map("prompt_version")
+  modelUsed     String       @map("model_used")
+  inputFacts    Json         @map("input_facts")
+  outputJson    Json         @map("output_json")
+  tokensIn      Int          @map("tokens_in")
+  tokensOut     Int          @map("tokens_out")
+  costUsd       Decimal      @map("cost_usd") @db.Decimal(10, 6)
+  createdAt     DateTime     @default(now()) @map("created_at")
+
+  @@unique([puuid, matchId, type, promptVersion], name: "analysis_cache_key")
+  @@index([createdAt])
+  @@map("analyses")
+}
+
+/// Percentile benchmarks per (patch, rankTier, role, metric) for scoring.
+model Benchmark {
+  patch      String
+  rankTier   String @map("rank_tier")
+  role       String
+  metricName String @map("metric_name")
+  p25        Float
+  p50        Float
+  p75        Float
+  p90        Float
+  sampleN    Int    @map("sample_n")
+
+  @@id([patch, rankTier, role, metricName])
+  @@map("benchmarks")
+}

@@ -30,7 +30,7 @@ export default async function SummonerProfilePage({
     const summoner = await getSummonerByPuuid(platform, account.puuid);
     const [leagueEntries, matchIds, version] = await Promise.all([
       getLeagueEntriesByPuuid(platform, account.puuid),
-      getMatchIdsByPuuid(platform, account.puuid, 10),
+      getMatchIdsByPuuid(platform, account.puuid, { count: 10 }),
       getLatestDDragonVersion(),
     ]);
     const matches = await Promise.all(matchIds.map((id) => getMatchById(platform, id)));

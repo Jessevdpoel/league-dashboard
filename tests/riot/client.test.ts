@@ -10,6 +10,25 @@ function fakeFetch(status: number, body: unknown): typeof fetch {
   }) as unknown as typeof fetch;
 }
 
+/** A fetch mock that returns each queued response in order. */
+function sequencedFetch(
+  responses: Array<{ status: number; body?: unknown; retryAfter?: string }>
+): typeof fetch {
+  let i = 0;
+  return vi.fn().mockImplementation(async () => {
+    const { status, body = {}, retryAfter } = responses[Math.min(i, responses.length - 1)];
+    i += 1;
+    return {
+      ok: status >= 200 && status < 300,
+      status,
+      headers: {
+        get: (name: string) => (name.toLowerCase() === 'retry-after' ? retryAfter ?? null : null),
+      },
+      json: async () => body,
+    };
+  }) as unknown as typeof fetch;
+}
+
 describe('RiotClient', () => {
   it('returns parsed JSON on success', async () => {
     const client = new RiotClient(
@@ -53,6 +72,42 @@ describe('RiotClient', () => {
     await expect(
       client.platformFetch('na1', '/a', { revalidateSeconds: 60 })
     ).rejects.toBeInstanceOf(RiotRateLimitedError);
+  });
+
+  it('retries a 429 and succeeds when retry is enabled', async () => {
+    const sleep = vi.fn().mockResolvedValue(undefined);
+    const fetchImpl = sequencedFetch([
+      { status: 429, retryAfter: '2' },
+      { status: 200, body: { ok: true } },
+    ]);
+    const client = new RiotClient(
+      new CompositeRateLimiter([new TokenBucket(10, 1000, 0)]),
+      fetchImpl,
+      () => 'fake-key'
+    );
+    const result = await client.platformFetch(
+      'na1',
+      '/a',
+      { revalidateSeconds: 60, retry: { maxRetries: 1, sleep } }
+    );
+    expect(result).toEqual({ ok: true });
+    expect(fetchImpl).toHaveBeenCalledTimes(2);
+    // Retry-After of 2s wins over the 500ms base backoff.
+    expect(sleep).toHaveBeenCalledWith(2000);
+  });
+
+  it('gives up with RiotRateLimitedError after exhausting retries on 429', async () => {
+    const sleep = vi.fn().mockResolvedValue(undefined);
+    const fetchImpl = sequencedFetch([{ status: 429 }]);
+    const client = new RiotClient(
+      new CompositeRateLimiter([new TokenBucket(10, 1000, 0)]),
+      fetchImpl,
+      () => 'fake-key'
+    );
+    await expect(
+      client.platformFetch('na1', '/a', { revalidateSeconds: 60, retry: { maxRetries: 2, sleep } })
+    ).rejects.toBeInstanceOf(RiotRateLimitedError);
+    expect(fetchImpl).toHaveBeenCalledTimes(3); // 1 initial + 2 retries
   });
 
   it('regionalFetch resolves the platform to its regional route', async () => {

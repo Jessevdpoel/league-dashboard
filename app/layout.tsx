@@ -2,6 +2,7 @@ import './globals.css';
 import type { ReactNode } from 'react';
 import { Rajdhani } from 'next/font/google';
 import { TopNav } from '@/components/TopNav';
+import { SiteFooter } from '@/components/SiteFooter';
 
 const rajdhani = Rajdhani({ subsets: ['latin'], variable: '--font-rajdhani', weight: ['500', '600', '700'] });
 
@@ -16,6 +17,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <body className="min-h-screen flex flex-col">
         <TopNav />
         <main className="flex-1">{children}</main>
+        <SiteFooter />
       </body>
     </html>
   );
