@@ -1,3 +1,4 @@
+import { after } from 'next/server';
 import { notFound } from 'next/navigation';
 import { isPlatformRegion, type PlatformRegion } from '@/lib/riot/regions';
 import { getAccountByRiotId } from '@/lib/riot/account';
@@ -8,6 +9,8 @@ import { parseRiotIdSegment } from '@/lib/riotId';
 import { toMatchSummary, computeTopChampions } from '@/lib/matchStats';
 import { RiotApiError } from '@/lib/riot/client';
 import { getLatestDDragonVersion } from '@/lib/dataDragon';
+import { observationsFromMatch, mergeObservations } from '@/lib/riotIdIndex';
+import { upsertRiotIdRows } from '@/lib/riotIdIndexStore';
 import { RankCard } from '@/components/RankCard';
 import { RecentFormCard } from '@/components/RecentFormCard';
 import { TopChampionsCard } from '@/components/TopChampionsCard';
@@ -34,6 +37,24 @@ export default async function SummonerProfilePage({
       getLatestDDragonVersion(),
     ]);
     const matches = await Promise.all(matchIds.map((id) => getMatchById(platform, id)));
+
+    // Feed every Riot ID we just saw into the self-built search index.
+    // Runs after the response streams; failures must never affect the page.
+    after(async () => {
+      try {
+        const observations = matches.flatMap(observationsFromMatch);
+        observations.push({
+          puuid: account.puuid,
+          gameName: account.gameName,
+          tagLine: account.tagLine,
+          observedAtMs: Date.now(),
+        });
+        await upsertRiotIdRows(mergeObservations(platform, observations));
+      } catch (error) {
+        console.error('riot id indexing failed', error);
+      }
+    });
+
     const summaries = matches.map((match) => toMatchSummary(match, account.puuid));
     const soloQueueEntry = leagueEntries.find((entry) => entry.queueType === 'RANKED_SOLO_5x5') ?? null;
     const recentResults = summaries.map((summary) => summary.win);
