@@ -17,9 +17,24 @@ describe('SearchForm', () => {
     expect(push).toHaveBeenCalledWith('/na1/Faker-KR1');
   });
 
-  it('shows a validation error and does not navigate when the tag is missing', () => {
+  it('falls back to the region default tag when no tag is given', () => {
     render(<SearchForm />);
     fireEvent.change(screen.getByLabelText('Riot ID'), { target: { value: 'Faker' } });
+    fireEvent.click(screen.getByText('Search'));
+    expect(push).toHaveBeenCalledWith('/na1/Faker-NA1');
+  });
+
+  it('uses the selected region default tag for bare names', () => {
+    render(<SearchForm />);
+    fireEvent.change(screen.getByLabelText('Region'), { target: { value: 'kr' } });
+    fireEvent.change(screen.getByLabelText('Riot ID'), { target: { value: 'Faker' } });
+    fireEvent.click(screen.getByText('Search'));
+    expect(push).toHaveBeenCalledWith('/kr/Faker-KR1');
+  });
+
+  it('still rejects input with an empty tag after the separator', () => {
+    render(<SearchForm />);
+    fireEvent.change(screen.getByLabelText('Riot ID'), { target: { value: 'Faker#' } });
     fireEvent.click(screen.getByText('Search'));
     expect(screen.getByRole('alert')).toHaveTextContent('Enter a Riot ID');
     expect(push).not.toHaveBeenCalled();

@@ -2,7 +2,7 @@
 
 import { useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
-import { PLATFORM_REGIONS, type PlatformRegion } from '@/lib/riot/regions';
+import { PLATFORM_REGIONS, defaultTagForRegion, type PlatformRegion } from '@/lib/riot/regions';
 
 const REGION_LABELS: Record<PlatformRegion, string> = {
   na1: 'North America',
@@ -27,16 +27,25 @@ export function SearchForm({ variant = 'hero' }: SearchFormProps) {
   const [riotId, setRiotId] = useState('');
   const [error, setError] = useState<string | null>(null);
 
+  function navigateTo(gameName: string, tagLine: string) {
+    setError(null);
+    router.push(`/${region}/${encodeRiotIdPart(gameName)}-${encodeRiotIdPart(tagLine)}`);
+  }
+
   function handleSubmit(event: FormEvent) {
     event.preventDefault();
-    const parts = riotId.split('#');
+    const raw = riotId.trim();
+    const parts = raw.split('#');
+    if (parts.length === 1 && parts[0].trim()) {
+      // Bare game name: assume the region's default tag (e.g. "Faker" → "Faker#KR1").
+      navigateTo(parts[0].trim(), defaultTagForRegion(region));
+      return;
+    }
     if (parts.length !== 2 || !parts[0].trim() || !parts[1].trim()) {
       setError('Enter a Riot ID in the form GameName#Tag');
       return;
     }
-    setError(null);
-    const [gameName, tagLine] = parts;
-    router.push(`/${region}/${encodeRiotIdPart(gameName.trim())}-${encodeRiotIdPart(tagLine.trim())}`);
+    navigateTo(parts[0].trim(), parts[1].trim());
   }
 
   const isHero = variant === 'hero';
@@ -65,7 +74,7 @@ export function SearchForm({ variant = 'hero' }: SearchFormProps) {
         <input
           value={riotId}
           onChange={(event) => setRiotId(event.target.value)}
-          placeholder="GameName#Tag"
+          placeholder="GameName#Tag (tag optional)"
           aria-label="Riot ID"
           className={`flex-1 bg-transparent text-frost-100 placeholder:text-frost-500/60 outline-none px-3 ${
             isHero ? 'py-2.5 text-sm' : 'py-1.5 text-xs w-40'
