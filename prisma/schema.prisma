@@ -90,3 +90,19 @@ model Benchmark {
   @@id([patch, rankTier, role, metricName])
   @@map("benchmarks")
 }
+
+/// Riot IDs observed in match payloads we fetched ourselves (Account-V1 has no
+/// name→tags lookup, so this self-built index powers tag autocomplete).
+/// One row per puuid; the newest observation wins when a name changes.
+model RiotIdIndex {
+  puuid              String   @id
+  region             String
+  gameName           String   @map("game_name")
+  gameNameNormalized String   @map("game_name_normalized")
+  tagLine            String   @map("tag_line")
+  seenCount          Int      @default(1) @map("seen_count")
+  lastSeenAt         DateTime @map("last_seen_at")
+
+  @@index([region, gameNameNormalized])
+  @@map("riot_id_index")
+}
