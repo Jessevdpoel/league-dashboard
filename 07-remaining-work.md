@@ -11,6 +11,9 @@ Last updated: 2026-07-07 · Branch: `feature/match-insights-phase0`
 - **Phase 1** — deterministic stats engine (timeline facts, metrics, rules, fact sheet).
 - **Phase 2 (this branch)** — AI analysis layer (`lib/analysis/analyzeMatch.ts`), single-match
   analysis page + UI, Analyze links, ad-slot infrastructure, `/admin/costs` LLM-cost dashboard.
+- **Riot ID search** — default-tag fallback + self-built `riot_id_index` suggestions implemented
+  per `08-riot-id-search.md`; "search all of Riot by name" is impossible via the official API
+  (no name→tags endpoint) and stays out of scope.
 
 ---
 
