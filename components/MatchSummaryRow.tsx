@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import type { MatchSummary } from '@/lib/matchStats';
 import type { MatchDto } from '@/lib/riot/types';
 import { championIconUrl, itemIconUrl, summonerSpellIconUrl } from '@/lib/dataDragon';
@@ -9,6 +10,8 @@ import { MatchScoreboard } from './MatchScoreboard';
 export interface MatchSummaryRowProps {
   summary: MatchSummary;
   version: string;
+  /** Profile base path (e.g. `/euw1/Faker-KR1`) used to build the analysis link. */
+  basePath: string;
 }
 
 function formatDuration(seconds: number): string {
@@ -17,7 +20,7 @@ function formatDuration(seconds: number): string {
   return `${minutes}:${remaining.toString().padStart(2, '0')}`;
 }
 
-export function MatchSummaryRow({ summary, version }: MatchSummaryRowProps) {
+export function MatchSummaryRow({ summary, version, basePath }: MatchSummaryRowProps) {
   const [expanded, setExpanded] = useState(false);
   const [detail, setDetail] = useState<MatchDto | null>(null);
   const [loading, setLoading] = useState(false);
@@ -46,9 +49,10 @@ export function MatchSummaryRow({ summary, version }: MatchSummaryRowProps) {
 
   return (
     <li className="relative pl-6 border-l-2 border-line-strong">
+      <div className="flex items-stretch gap-2">
       <button
         onClick={handleToggle}
-        className={`w-full text-left rounded-lg p-3 flex items-center gap-3 border ${
+        className={`flex-1 text-left rounded-lg p-3 flex items-center gap-3 border ${
           summary.win ? 'bg-win/10 border-win/30' : 'bg-loss/10 border-loss/25'
         }`}
       >
@@ -95,6 +99,13 @@ export function MatchSummaryRow({ summary, version }: MatchSummaryRowProps) {
           })}
         </div>
       </button>
+        <Link
+          href={`${basePath}/match/${summary.matchId}/analysis`}
+          className="flex items-center rounded-lg border border-cyan-400/40 bg-cyan-400/5 px-3 text-sm font-bold text-cyan-400 hover:border-cyan-400/70"
+        >
+          Analyze
+        </Link>
+      </div>
       {expanded && (
         <div className="mt-2">
           {loading && <p className="text-frost-500 text-sm">Loading full match...</p>}

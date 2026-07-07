@@ -35,12 +35,12 @@ describe('MatchHistory', () => {
         gameCreation: 0,
       },
     ];
-    render(<MatchHistory matches={matches} version="14.23.1" />);
+    render(<MatchHistory matches={matches} version="14.23.1" basePath="/euw1/Test-EUW" />);
     expect(screen.getAllByRole('button')).toHaveLength(2);
   });
 
   it('shows an empty state with no matches', () => {
-    render(<MatchHistory matches={[]} version="14.23.1" />);
+    render(<MatchHistory matches={[]} version="14.23.1" basePath="/euw1/Test-EUW" />);
     expect(screen.getByText('No recent matches found.')).toBeInTheDocument();
   });
 });

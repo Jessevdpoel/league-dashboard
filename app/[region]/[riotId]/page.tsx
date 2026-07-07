@@ -57,7 +57,7 @@ export default async function SummonerProfilePage({
         </div>
         <section>
           <h2 className="text-xl font-bold text-frost-100 mb-3">Match History</h2>
-          <MatchHistory matches={summaries} version={version} />
+          <MatchHistory matches={summaries} version={version} basePath={`/${region}/${riotId}`} />
         </section>
       </div>
     );

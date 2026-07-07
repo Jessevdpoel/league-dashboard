@@ -33,7 +33,7 @@ beforeEach(() => {
 
 describe('MatchSummaryRow', () => {
   it('shows the champion icon, KDA, and formatted duration', () => {
-    render(<MatchSummaryRow summary={summary} version="14.23.1" />);
+    render(<MatchSummaryRow summary={summary} version="14.23.1" basePath="/euw1/Test-EUW" />);
     expect(screen.getByAltText('Ahri')).toHaveAttribute(
       'src',
       'https://ddragon.leagueoflegends.com/cdn/14.23.1/img/champion/Ahri.png'
@@ -44,7 +44,7 @@ describe('MatchSummaryRow', () => {
   });
 
   it('fetches and shows the full scoreboard when expanded', async () => {
-    render(<MatchSummaryRow summary={summary} version="14.23.1" />);
+    render(<MatchSummaryRow summary={summary} version="14.23.1" basePath="/euw1/Test-EUW" />);
     fireEvent.click(screen.getByRole('button'));
     await waitFor(() => expect(fetch).toHaveBeenCalledWith('/api/matches/NA1_1'));
     await waitFor(() => expect(screen.getByText('Blue Team')).toBeInTheDocument());

@@ -1,0 +1,93 @@
+import { notFound } from 'next/navigation';
+import Link from 'next/link';
+import { isPlatformRegion, type PlatformRegion } from '@/lib/riot/regions';
+import { getAccountByRiotId } from '@/lib/riot/account';
+import { getLeagueEntriesByPuuid } from '@/lib/riot/league';
+import { getMatchById, getMatchTimeline } from '@/lib/riot/match';
+import { parseRiotIdSegment } from '@/lib/riotId';
+import { RiotApiError } from '@/lib/riot/client';
+import { getLatestDDragonVersion } from '@/lib/dataDragon';
+import { buildSingleMatchFactSheet } from '@/lib/analysis/factSheet';
+import { analyzeMatch, PROMPT_VERSION } from '@/lib/analysis/analyzeMatch';
+import { prismaAnalysisStore } from '@/lib/analysis/analysisStore';
+import { AnalysisView } from '@/components/analysis/AnalysisView';
+
+/** DDragon version (e.g. 14.13.1) -> patch (14.13) used to key benchmarks. */
+function patchFromVersion(version: string): string {
+  return version.split('.').slice(0, 2).join('.');
+}
+
+export default async function MatchAnalysisPage({
+  params,
+}: {
+  params: Promise<{ region: string; riotId: string; matchId: string }>;
+}) {
+  const { region, riotId, matchId } = await params;
+  if (!isPlatformRegion(region)) notFound();
+  const platform: PlatformRegion = region;
+
+  const parsed = parseRiotIdSegment(riotId);
+  if (!parsed) notFound();
+
+  const basePath = `/${region}/${riotId}`;
+
+  try {
+    const account = await getAccountByRiotId(platform, parsed.gameName, parsed.tagLine);
+    const [match, timeline, leagueEntries, version] = await Promise.all([
+      getMatchById(platform, matchId),
+      getMatchTimeline(platform, matchId),
+      getLeagueEntriesByPuuid(platform, account.puuid),
+      getLatestDDragonVersion(),
+    ]);
+
+    const participant = match.info.participants.find((p) => p.puuid === account.puuid);
+    if (!participant) notFound();
+
+    const solo = leagueEntries.find((e) => e.queueType === 'RANKED_SOLO_5x5');
+    const rank = solo?.tier ?? 'UNRANKED';
+    const patch = patchFromVersion(version);
+
+    const factSheet = buildSingleMatchFactSheet(match, timeline, account.puuid, { rank, patch });
+
+    const { output, degraded } = await analyzeMatch(
+      factSheet,
+      { puuid: account.puuid, matchId, type: 'single', promptVersion: PROMPT_VERSION },
+      { store: process.env.DATABASE_URL ? prismaAnalysisStore : null }
+    );
+
+    return (
+      <div className="mx-auto max-w-4xl p-6 md:p-8">
+        <Link href={basePath} className="text-sm text-frost-500 hover:text-cyan-400">
+          {account.gameName}#{account.tagLine}
+        </Link>
+        <div className="mt-4">
+          <AnalysisView
+            output={output}
+            factSheet={factSheet}
+            degraded={degraded}
+            kda={{ kills: participant.kills, deaths: participant.deaths, assists: participant.assists }}
+            version={version}
+            basePath={basePath}
+          />
+        </div>
+      </div>
+    );
+  } catch (error) {
+    if (error instanceof RiotApiError && error.status === 404) {
+      return (
+        <p className="p-8 text-frost-100">
+          We couldn&apos;t find that match. It may be too old for Riot&apos;s API, or the summoner
+          isn&apos;t in it.
+        </p>
+      );
+    }
+    if (error instanceof RiotApiError && error.status === 429) {
+      return (
+        <p className="p-8 text-frost-100">
+          We&apos;re being rate limited by Riot right now. Please wait a moment and try again.
+        </p>
+      );
+    }
+    throw error;
+  }
+}

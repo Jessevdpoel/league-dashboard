@@ -26,6 +26,7 @@ const config: Config = {
         },
         win: '#3af0b0',
         loss: '#ff5f5f',
+        amber: '#ffc04d',
       },
       fontFamily: {
         sans: ['var(--font-rajdhani)', 'sans-serif'],
