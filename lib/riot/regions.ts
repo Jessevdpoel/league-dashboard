@@ -27,3 +27,21 @@ export function platformFromMatchId(matchId: string): PlatformRegion {
   }
   return prefix;
 }
+
+/**
+ * Riot's conventional default tag line per platform region — the tag assigned
+ * to accounts that never customized theirs. Used as the best-guess fallback
+ * when a user searches a bare game name without "#Tag".
+ */
+const DEFAULT_TAGS: Record<PlatformRegion, string> = {
+  na1: 'NA1',
+  euw1: 'EUW',
+  eun1: 'EUNE',
+  kr: 'KR1',
+  jp1: 'JP1',
+  br1: 'BR1',
+};
+
+export function defaultTagForRegion(platform: PlatformRegion): string {
+  return DEFAULT_TAGS[platform];
+}
