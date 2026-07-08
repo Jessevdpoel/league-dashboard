@@ -1,9 +1,13 @@
 import './globals.css';
 import type { ReactNode } from 'react';
 import Script from 'next/script';
-import { Rajdhani } from 'next/font/google';
+import { Rajdhani, Geist } from 'next/font/google';
 import { TopNav } from '@/components/TopNav';
 import { SiteFooter } from '@/components/SiteFooter';
+import { cn } from "@/lib/utils";
+
+const geist = Geist({subsets:['latin'],variable:'--font-sans'});
+
 
 // Loaded only when a publisher id is configured. Enable Google's certified CMP in
 // the AdSense dashboard before setting this for EU/UK traffic (see AdSlot.tsx).
@@ -18,7 +22,7 @@ export const metadata = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" className={rajdhani.variable}>
+    <html lang="en" className={cn("font-sans", geist.variable)}>
       <body className="min-h-screen flex flex-col">
         {ADSENSE_CLIENT && (
           <Script
