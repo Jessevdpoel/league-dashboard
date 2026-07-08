@@ -171,10 +171,10 @@ export function AnalysisView({
         <SkillRadar scores={factSheet.scores} />
       </div>
 
-      {/* Category detail bars (also the no-benchmark fallback) */}
+      {/* 3. Category detail bars (also the no-benchmark fallback) */}
       <ScoreBars scores={factSheet.scores} />
 
-      {/* 5. Timeline strip — renders nothing without an opponent series */}
+      {/* 4. Timeline strip — renders nothing without an opponent series */}
       <TimelineStrip series={goldDiffSeries} deaths={deaths} />
 
       {degraded && (
@@ -187,7 +187,7 @@ export function AnalysisView({
       {/* Ad slot below the scores block */}
       <AdSlot label="Advertisement" />
 
-      {/* 3. What went well */}
+      {/* 5. What went well */}
       {output.strengths.length > 0 && (
         <section>
           <h2 className="mb-3 text-lg font-bold text-foreground">What went well</h2>
@@ -202,7 +202,7 @@ export function AnalysisView({
       {/* In-content ad between strengths and improvements */}
       <AdSlot label="Advertisement" />
 
-      {/* 4. What to improve — sorted by priority, with the numbers */}
+      {/* 6. What to improve — sorted by priority, with the numbers */}
       {improvements.length > 0 && (
         <section>
           <h2 className="mb-3 text-lg font-bold text-foreground">What to improve</h2>
@@ -214,7 +214,7 @@ export function AnalysisView({
         </section>
       )}
 
-      {/* 6. Focus for next game */}
+      {/* 7. Focus for next game */}
       <section className="rounded-lg border border-accent-foreground/40 bg-accent-foreground/5 p-4">
         <h2 className="text-xs font-semibold uppercase tracking-wide text-accent-foreground">
           Focus for your next game
@@ -222,7 +222,7 @@ export function AnalysisView({
         <p className="mt-1 text-foreground font-semibold">{output.focus_next_game}</p>
       </section>
 
-      {/* 7. Tips */}
+      {/* 8. Tips */}
       {output.tips.length > 0 && (
         <section>
           <h2 className="mb-3 text-lg font-bold text-foreground">Tips</h2>

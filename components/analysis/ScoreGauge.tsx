@@ -61,7 +61,7 @@ export function ScoreGauge({ score, label = 'Overall score' }: ScoreGaugeProps) 
             />
           )}
         </svg>
-        <div className="absolute inset-0 flex flex-col items-center justify-center">
+        <div className="absolute inset-0 flex flex-col items-center justify-center" aria-hidden="true">
           <span className="text-4xl font-bold text-foreground">{score ?? '—'}</span>
           {score !== null && <span className="text-[11px] text-muted-foreground">/ 100</span>}
         </div>
