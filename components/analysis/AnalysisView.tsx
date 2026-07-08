@@ -8,8 +8,13 @@ import type {
   AnalysisStrength,
 } from '@/lib/analysis/analysisOutput';
 import { championIconUrl } from '@/lib/dataDragon';
+import { computeOverallScore } from '@/lib/analysis/overallScore';
+import type { DeathFact, GoldDiffPoint } from '@/lib/analysis/timelineFacts';
 import { AdSlot } from './AdSlot';
 import { IconImg } from '../IconImg';
+import { ScoreGauge } from './ScoreGauge';
+import { SkillRadar } from './SkillRadar';
+import { TimelineStrip } from './TimelineStrip';
 
 export interface AnalysisViewProps {
   output: AnalysisOutput;
@@ -20,6 +25,10 @@ export interface AnalysisViewProps {
   version: string;
   /** e.g. `/euw1/Faker-KR1` — for the "See your trends" cross-link. */
   basePath: string;
+  /** Per-minute gold diff vs lane opponent; empty when no opponent. */
+  goldDiffSeries: GoldDiffPoint[];
+  /** Death facts for timeline markers (from extractTimelineFacts on the page). */
+  deaths: DeathFact[];
 }
 
 const CATEGORY_LABELS: Record<MetricCategory, string> = {
@@ -112,7 +121,16 @@ function Card({
   );
 }
 
-export function AnalysisView({ output, factSheet, degraded, kda, version, basePath }: AnalysisViewProps) {
+export function AnalysisView({
+  output,
+  factSheet,
+  degraded,
+  kda,
+  version,
+  basePath,
+  goldDiffSeries,
+  deaths,
+}: AnalysisViewProps) {
   const { context } = factSheet;
   const findingsById = new Map(factSheet.findings.map((f) => [f.id, f]));
   const improvements = [...output.improvements].sort((a, b) => a.priority - b.priority);
@@ -142,8 +160,22 @@ export function AnalysisView({ output, factSheet, degraded, kda, version, basePa
         </div>
       </header>
 
-      {/* 2. Score bars — render instantly from the stats engine */}
+      {/* 2. Hero: overall gauge + skill radar (both fall back until benchmarks exist) */}
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-[auto_1fr]">
+        <div className="flex items-center justify-center rounded-lg border border-border bg-card p-4">
+          <ScoreGauge
+            score={computeOverallScore(factSheet.scores, context.role)}
+            label="Match score"
+          />
+        </div>
+        <SkillRadar scores={factSheet.scores} />
+      </div>
+
+      {/* Category detail bars (also the no-benchmark fallback) */}
       <ScoreBars scores={factSheet.scores} />
+
+      {/* 5. Timeline strip — renders nothing without an opponent series */}
+      <TimelineStrip series={goldDiffSeries} deaths={deaths} />
 
       {degraded && (
         <p className="rounded-lg border border-border bg-card px-3 py-2 text-xs text-muted-foreground">

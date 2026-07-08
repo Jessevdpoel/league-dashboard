@@ -44,6 +44,11 @@ function findOpponent(match: MatchDto, player: ParticipantDto): ParticipantDto |
   );
 }
 
+/** Lane opponent's PUUID for UI-side timeline extraction (not fact-sheet data). */
+export function findLaneOpponentPuuid(match: MatchDto, puuid: string): string | undefined {
+  return findOpponent(match, participantFor(match, puuid))?.puuid;
+}
+
 /** timeline participantId -> role, joined via puuid through the match. */
 function rolesByParticipantId(match: MatchDto, timeline: MatchTimelineDto): Record<number, string> {
   const roleByPuuid = new Map(match.info.participants.map((p) => [p.puuid, p.teamPosition ?? '']));

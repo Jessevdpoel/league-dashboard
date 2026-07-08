@@ -7,7 +7,8 @@ import { getMatchById, getMatchTimeline } from '@/lib/riot/match';
 import { parseRiotIdSegment } from '@/lib/riotId';
 import { RiotApiError } from '@/lib/riot/client';
 import { getLatestDDragonVersion } from '@/lib/dataDragon';
-import { buildSingleMatchFactSheet } from '@/lib/analysis/factSheet';
+import { buildSingleMatchFactSheet, findLaneOpponentPuuid } from '@/lib/analysis/factSheet';
+import { extractGoldDiffSeries, extractTimelineFacts } from '@/lib/analysis/timelineFacts';
 import { analyzeMatch, PROMPT_VERSION } from '@/lib/analysis/analyzeMatch';
 import { prismaAnalysisStore } from '@/lib/analysis/analysisStore';
 import { AnalysisView } from '@/components/analysis/AnalysisView';
@@ -49,6 +50,13 @@ export default async function MatchAnalysisPage({
 
     const factSheet = buildSingleMatchFactSheet(match, timeline, account.puuid, { rank, patch });
 
+    const goldDiffSeries = extractGoldDiffSeries(
+      timeline,
+      account.puuid,
+      findLaneOpponentPuuid(match, account.puuid)
+    );
+    const timelineFacts = extractTimelineFacts(timeline, account.puuid);
+
     const { output, degraded } = await analyzeMatch(
       factSheet,
       { puuid: account.puuid, matchId, type: 'single', promptVersion: PROMPT_VERSION },
@@ -68,6 +76,8 @@ export default async function MatchAnalysisPage({
             kda={{ kills: participant.kills, deaths: participant.deaths, assists: participant.assists }}
             version={version}
             basePath={basePath}
+            goldDiffSeries={goldDiffSeries}
+            deaths={timelineFacts.deaths}
           />
         </div>
       </div>
