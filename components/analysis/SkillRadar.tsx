@@ -1,6 +1,6 @@
 'use client';
 
-import { PolarAngleAxis, PolarGrid, Radar, RadarChart } from 'recharts';
+import { PolarAngleAxis, PolarGrid, PolarRadiusAxis, Radar, RadarChart } from 'recharts';
 import {
   ChartContainer,
   ChartTooltip,
@@ -52,6 +52,7 @@ export function SkillRadar({ scores }: { scores: Record<MetricCategory, number |
         <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
         <PolarGrid stroke="var(--border)" />
         <PolarAngleAxis dataKey="skill" tick={{ fill: 'var(--muted-foreground)', fontSize: 11 }} />
+        <PolarRadiusAxis domain={[0, 100]} tick={false} axisLine={false} />
         <Radar
           dataKey="score"
           fill="var(--color-score)"
