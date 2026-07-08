@@ -186,3 +186,29 @@ export function extractTimelineFacts(
     wards,
   };
 }
+
+export interface GoldDiffPoint {
+  /** Whole minutes from game start (frames arrive ~1/min). */
+  minute: number;
+  /** Player minus lane opponent total gold (positive = player ahead). */
+  gold: number;
+}
+
+/**
+ * Per-frame gold diff vs the lane opponent, for the timeline strip chart.
+ * Not part of the LLM fact sheet — UI data only. Empty when no opponent.
+ */
+export function extractGoldDiffSeries(
+  timeline: MatchTimelineDto,
+  puuid: string,
+  opponentPuuid: string | undefined
+): GoldDiffPoint[] {
+  if (opponentPuuid === undefined) return [];
+  const participantId = participantIdForPuuid(timeline, puuid);
+  const opponentId = participantIdForPuuid(timeline, opponentPuuid);
+  if (participantId === null || opponentId === null) return [];
+  return timeline.info.frames.map((frame) => ({
+    minute: Math.round(frame.timestamp / 60_000),
+    gold: goldOf(frame, participantId) - goldOf(frame, opponentId),
+  }));
+}
