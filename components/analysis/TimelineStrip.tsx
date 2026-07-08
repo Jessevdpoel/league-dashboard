@@ -47,7 +47,7 @@ export function TimelineStrip({ series, deaths }: TimelineStripProps) {
             tickFormatter={(m: number) => `${m}m`}
             interval="preserveStartEnd"
           />
-          <YAxis hide domain={['dataMin', 'dataMax']} />
+          <YAxis hide domain={[(min: number) => Math.min(0, min), (max: number) => Math.max(0, max)]} />
           <ChartTooltip
             content={
               <ChartTooltipContent
