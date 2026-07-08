@@ -106,3 +106,35 @@ model RiotIdIndex {
   @@index([region, gameNameNormalized])
   @@map("riot_id_index")
 }
+
+/// Lifecycle of a lazy benchmark cohort fill (spec: benchmark-data-acquisition).
+enum BenchmarkJobStatus {
+  pending
+  running
+  done
+  failed
+}
+
+/// Resumable crawl job that fills one (patch, rankTier) benchmark cohort.
+/// Enqueued on a benchmark cache miss; processed in ~50-request chunks by the
+/// cron route. The unique key makes concurrent visitors collide into ONE job.
+model BenchmarkJob {
+  id              String             @id @default(cuid())
+  patch           String
+  rankTier        String             @map("rank_tier")
+  /// Platform region to crawl (e.g. euw1) — from the match that triggered the miss.
+  region          String
+  status          BenchmarkJobStatus @default(pending)
+  /// Ladder players sampled as crawl seeds. Empty until the seeding step runs.
+  seedPuuids      Json               @default("[]") @map("seed_puuids")
+  /// Dedup'd match ids still to fetch (the resumable cursor).
+  pendingMatchIds Json               @default("[]") @map("pending_match_ids")
+  processedCount  Int                @default(0) @map("processed_count")
+  attempts        Int                @default(0)
+  createdAt       DateTime           @default(now()) @map("created_at")
+  updatedAt       DateTime           @updatedAt @map("updated_at")
+
+  @@unique([patch, rankTier], name: "job_cohort_key")
+  @@index([status, createdAt])
+  @@map("benchmark_jobs")
+}
