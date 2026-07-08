@@ -10,7 +10,8 @@ describe('RankCard', () => {
       />
     );
     expect(screen.getByText('GOLD II')).toBeInTheDocument();
-    expect(screen.getByText('6W 4L (60% win rate)')).toBeInTheDocument();
+    expect(screen.getByText('6W 4L ·')).toBeInTheDocument();
+    expect(screen.getByText('60%')).toBeInTheDocument();
     expect(screen.getByAltText('GOLD emblem')).toHaveAttribute(
       'src',
       'https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/images/ranked-emblems/emblem-gold.png'
