@@ -66,10 +66,10 @@ export default async function SummonerProfilePage({
     return (
       <div className="flex flex-col gap-6 p-8 max-w-5xl mx-auto">
         <header>
-          <h1 className="text-3xl font-bold text-frost-100">
+          <h1 className="text-3xl font-bold text-foreground">
             {account.gameName}#{account.tagLine}
           </h1>
-          <p className="text-frost-500 font-semibold">Level {summoner.summonerLevel}</p>
+          <p className="text-muted-foreground font-semibold">Level {summoner.summonerLevel}</p>
         </header>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <RankCard entry={soloQueueEntry} />
@@ -77,7 +77,7 @@ export default async function SummonerProfilePage({
           <TopChampionsCard champions={topChampions} version={version} />
         </div>
         <section>
-          <h2 className="text-xl font-bold text-frost-100 mb-3">Match History</h2>
+          <h2 className="text-xl font-bold text-foreground mb-3">Match History</h2>
           <MatchHistory matches={summaries} version={version} basePath={`/${region}/${riotId}`} />
         </section>
       </div>
@@ -85,14 +85,14 @@ export default async function SummonerProfilePage({
   } catch (error) {
     if (error instanceof RiotApiError && error.status === 404) {
       return (
-        <p className="text-frost-100 p-8">
+        <p className="text-foreground p-8">
           We couldn&apos;t find that summoner. Double check the name, tag, and region.
         </p>
       );
     }
     if (error instanceof RiotApiError && error.status === 429) {
       return (
-        <p className="text-frost-100 p-8">
+        <p className="text-foreground p-8">
           We&apos;re being rate limited by Riot right now. Please wait a moment and try again.
         </p>
       );

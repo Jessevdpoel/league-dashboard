@@ -44,23 +44,23 @@ function ScoreBars({ scores }: { scores: FactSheet['scores'] }) {
       {CATEGORY_ORDER.map((cat) => {
         const score = scores[cat];
         return (
-          <div key={cat} className="rounded-lg border border-line-strong bg-ink-900 p-3">
+          <div key={cat} className="rounded-lg border border-border bg-card p-3">
             <div className="flex items-baseline justify-between">
-              <span className="text-xs font-semibold uppercase tracking-wide text-frost-500">
+              <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                 {CATEGORY_LABELS[cat]}
               </span>
-              <span className="text-sm font-bold text-frost-100">
+              <span className="text-sm font-bold text-foreground">
                 {score === null ? '—' : score}
               </span>
             </div>
-            <div className="mt-2 h-2 rounded-full bg-ink-950 overflow-hidden">
+            <div className="mt-2 h-2 rounded-full bg-background overflow-hidden">
               {score === null ? (
-                <div className="h-full w-full bg-line-subtle" title="Needs benchmark data" />
+                <div className="h-full w-full bg-border" title="Needs benchmark data" />
               ) : (
                 <div className={`h-full rounded-full ${scoreColor(score)}`} style={{ width: `${score}%` }} />
               )}
             </div>
-            {score === null && <p className="mt-1 text-[11px] text-frost-500">Needs more data</p>}
+            {score === null && <p className="mt-1 text-[11px] text-muted-foreground">Needs more data</p>}
           </div>
         );
       })}
@@ -75,9 +75,9 @@ function NumberChips({ finding }: { finding: Finding }) {
       {Object.entries(finding.data).map(([key, value]) => (
         <span
           key={key}
-          className="rounded bg-ink-950 border border-line-subtle px-1.5 py-0.5 text-[11px] text-frost-300"
+          className="rounded bg-background border border-border px-1.5 py-0.5 text-[11px] text-foreground/80"
         >
-          <span className="text-frost-500">{key.replace(/_/g, ' ')}:</span>{' '}
+          <span className="text-muted-foreground">{key.replace(/_/g, ' ')}:</span>{' '}
           {Array.isArray(value) ? value.join(', ') : String(value)}
         </span>
       ))}
@@ -99,11 +99,11 @@ function Card({
   const dot = accent === 'win' ? 'text-win' : 'text-amber';
   return (
     <div className={`rounded-lg border ${border} ${bg} p-4`}>
-      <h4 className="flex items-center gap-2 font-bold text-frost-100">
+      <h4 className="flex items-center gap-2 font-bold text-foreground">
         <span className={dot}>●</span>
         {item.title}
       </h4>
-      <p className="mt-1 text-sm text-frost-300 leading-relaxed">{item.body}</p>
+      <p className="mt-1 text-sm text-foreground/80 leading-relaxed">{item.body}</p>
       {item.metric_refs.map((ref) => {
         const f = findingsById.get(ref);
         return f ? <NumberChips key={ref} finding={f} /> : null;
@@ -124,21 +124,21 @@ export function AnalysisView({ output, factSheet, degraded, kda, version, basePa
         <IconImg
           src={championIconUrl(version, context.champion)}
           alt={context.champion}
-          className="h-16 w-16 rounded-lg border border-line-strong"
+          className="h-16 w-16 rounded-lg border border-border"
         />
         <div>
           <div className="flex items-center gap-3">
             <span className={`text-lg font-bold ${context.result === 'win' ? 'text-win' : 'text-loss'}`}>
               {context.result === 'win' ? 'Victory' : 'Defeat'}
             </span>
-            <span className="text-frost-300 font-semibold">
+            <span className="text-foreground/80 font-semibold">
               {kda.kills}/{kda.deaths}/{kda.assists}
             </span>
-            <span className="text-frost-500 text-sm">
+            <span className="text-muted-foreground text-sm">
               {context.champion} · {context.role} · {context.durationMinutes} min
             </span>
           </div>
-          <h1 className="mt-1 text-xl font-bold text-frost-100">{output.headline}</h1>
+          <h1 className="mt-1 text-xl font-bold text-foreground">{output.headline}</h1>
         </div>
       </header>
 
@@ -146,7 +146,7 @@ export function AnalysisView({ output, factSheet, degraded, kda, version, basePa
       <ScoreBars scores={factSheet.scores} />
 
       {degraded && (
-        <p className="rounded-lg border border-line-subtle bg-ink-900 px-3 py-2 text-xs text-frost-500">
+        <p className="rounded-lg border border-border bg-card px-3 py-2 text-xs text-muted-foreground">
           Showing the deterministic scorecard. Detailed AI coaching is unavailable right now — the
           numbers below are exact.
         </p>
@@ -158,7 +158,7 @@ export function AnalysisView({ output, factSheet, degraded, kda, version, basePa
       {/* 3. What went well */}
       {output.strengths.length > 0 && (
         <section>
-          <h2 className="mb-3 text-lg font-bold text-frost-100">What went well</h2>
+          <h2 className="mb-3 text-lg font-bold text-foreground">What went well</h2>
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
             {output.strengths.map((s, i) => (
               <Card key={i} item={s} findingsById={findingsById} accent="win" />
@@ -173,7 +173,7 @@ export function AnalysisView({ output, factSheet, degraded, kda, version, basePa
       {/* 4. What to improve — sorted by priority, with the numbers */}
       {improvements.length > 0 && (
         <section>
-          <h2 className="mb-3 text-lg font-bold text-frost-100">What to improve</h2>
+          <h2 className="mb-3 text-lg font-bold text-foreground">What to improve</h2>
           <div className="flex flex-col gap-3">
             {improvements.map((s, i) => (
               <Card key={i} item={s} findingsById={findingsById} accent="amber" />
@@ -183,21 +183,21 @@ export function AnalysisView({ output, factSheet, degraded, kda, version, basePa
       )}
 
       {/* 6. Focus for next game */}
-      <section className="rounded-lg border border-cyan-400/40 bg-cyan-400/5 p-4">
-        <h2 className="text-xs font-semibold uppercase tracking-wide text-cyan-400">
+      <section className="rounded-lg border border-accent-foreground/40 bg-accent-foreground/5 p-4">
+        <h2 className="text-xs font-semibold uppercase tracking-wide text-accent-foreground">
           Focus for your next game
         </h2>
-        <p className="mt-1 text-frost-100 font-semibold">{output.focus_next_game}</p>
+        <p className="mt-1 text-foreground font-semibold">{output.focus_next_game}</p>
       </section>
 
       {/* 7. Tips */}
       {output.tips.length > 0 && (
         <section>
-          <h2 className="mb-3 text-lg font-bold text-frost-100">Tips</h2>
+          <h2 className="mb-3 text-lg font-bold text-foreground">Tips</h2>
           <ul className="flex flex-col gap-2">
             {output.tips.map((t, i) => (
-              <li key={i} className="rounded-lg border border-line-subtle bg-ink-900 p-3 text-sm text-frost-300">
-                <span className="mr-2 rounded bg-ink-950 px-1.5 py-0.5 text-[11px] uppercase text-frost-500">
+              <li key={i} className="rounded-lg border border-border bg-card p-3 text-sm text-foreground/80">
+                <span className="mr-2 rounded bg-background px-1.5 py-0.5 text-[11px] uppercase text-muted-foreground">
                   {t.tag}
                 </span>
                 {t.body}
@@ -210,7 +210,7 @@ export function AnalysisView({ output, factSheet, degraded, kda, version, basePa
       {/* Back to profile (20-game trend/insights page is a later phase — 04) */}
       <Link
         href={basePath}
-        className="self-start rounded-lg border border-line-strong bg-ink-900 px-4 py-2 text-sm font-semibold text-cyan-400 hover:border-cyan-400/60"
+        className="self-start rounded-lg border border-border bg-card px-4 py-2 text-sm font-semibold text-accent-foreground hover:border-accent-foreground/60"
       >
         ← Back to profile
       </Link>

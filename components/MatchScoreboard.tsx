@@ -10,7 +10,7 @@ export interface MatchScoreboardProps {
 function TeamTable({ team, label, version }: { team: ParticipantDto[]; label: string; version: string }) {
   return (
     <table className="w-full text-sm">
-      <caption className="text-left text-cyan-400 mb-1 font-semibold">{label}</caption>
+      <caption className="text-left text-accent-foreground mb-1 font-semibold">{label}</caption>
       <thead>
         <tr>
           <th className="text-left">Player</th>
@@ -23,7 +23,7 @@ function TeamTable({ team, label, version }: { team: ParticipantDto[]; label: st
       <tbody>
         {team.map((participant) => (
           <tr key={participant.puuid}>
-            <td className="text-frost-300">
+            <td className="text-foreground/80">
               {participant.riotIdGameName}#{participant.riotIdTagline}
             </td>
             <td>
@@ -31,16 +31,16 @@ function TeamTable({ team, label, version }: { team: ParticipantDto[]; label: st
                 <IconImg
                   src={championIconUrl(version, participant.championName)}
                   alt={participant.championName}
-                  className="w-6 h-6 rounded border border-line-strong"
+                  className="w-6 h-6 rounded border border-border"
                 />
-                <span className="text-frost-300">{participant.championName}</span>
+                <span className="text-foreground/80">{participant.championName}</span>
               </div>
             </td>
-            <td className="text-frost-300">
+            <td className="text-foreground/80">
               {participant.kills}/{participant.deaths}/{participant.assists}
             </td>
-            <td className="text-frost-300">{participant.totalDamageDealtToChampions}</td>
-            <td className="text-frost-300">{participant.visionScore}</td>
+            <td className="text-foreground/80">{participant.totalDamageDealtToChampions}</td>
+            <td className="text-foreground/80">{participant.visionScore}</td>
           </tr>
         ))}
       </tbody>
@@ -53,7 +53,7 @@ export function MatchScoreboard({ match, version }: MatchScoreboardProps) {
   const redTeam = match.info.participants.filter((p) => p.teamId === 200);
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-ink-950 border border-line-subtle p-4 rounded-lg">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-background border border-border p-4 rounded-lg">
       <TeamTable team={blueTeam} label="Blue Team" version={version} />
       <TeamTable team={redTeam} label="Red Team" version={version} />
     </div>

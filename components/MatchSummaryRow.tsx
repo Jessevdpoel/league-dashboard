@@ -48,7 +48,7 @@ export function MatchSummaryRow({ summary, version, basePath }: MatchSummaryRowP
   }
 
   return (
-    <li className="relative pl-6 border-l-2 border-line-strong">
+    <li className="relative pl-6 border-l-2 border-border">
       <div className="flex items-stretch gap-2">
       <button
         onClick={handleToggle}
@@ -59,7 +59,7 @@ export function MatchSummaryRow({ summary, version, basePath }: MatchSummaryRowP
         <img
           src={championIconUrl(version, summary.championName)}
           alt={summary.championName}
-          className="w-11 h-11 rounded-md border border-line-strong"
+          className="w-11 h-11 rounded-md border border-border"
           onError={(event) => {
             event.currentTarget.style.display = 'none';
           }}
@@ -73,10 +73,10 @@ export function MatchSummaryRow({ summary, version, basePath }: MatchSummaryRowP
             }} />;
           })}
         </div>
-        <span className="text-sm text-frost-300 font-semibold">
+        <span className="text-sm text-foreground/80 font-semibold">
           {summary.kills}/{summary.deaths}/{summary.assists}
         </span>
-        <span className="text-sm text-frost-500">{formatDuration(summary.durationSeconds)}</span>
+        <span className="text-sm text-muted-foreground">{formatDuration(summary.durationSeconds)}</span>
         <span className={`text-sm font-bold ${summary.win ? 'text-win' : 'text-loss'}`}>
           {summary.win ? 'Victory' : 'Defeat'}
         </span>
@@ -90,7 +90,7 @@ export function MatchSummaryRow({ summary, version, basePath }: MatchSummaryRowP
                 key={index}
                 src={url}
                 alt=""
-                className="w-[26px] h-[26px] rounded border border-line-strong"
+                className="w-[26px] h-[26px] rounded border border-border"
                 onError={(event) => {
                   event.currentTarget.style.display = 'none';
                 }}
@@ -101,14 +101,14 @@ export function MatchSummaryRow({ summary, version, basePath }: MatchSummaryRowP
       </button>
         <Link
           href={`${basePath}/match/${summary.matchId}/analysis`}
-          className="flex items-center rounded-lg border border-cyan-400/40 bg-cyan-400/5 px-3 text-sm font-bold text-cyan-400 hover:border-cyan-400/70"
+          className="flex items-center rounded-lg border border-accent-foreground/40 bg-accent-foreground/5 px-3 text-sm font-bold text-accent-foreground hover:border-accent-foreground/70"
         >
           Analyze
         </Link>
       </div>
       {expanded && (
         <div className="mt-2">
-          {loading && <p className="text-frost-500 text-sm">Loading full match...</p>}
+          {loading && <p className="text-muted-foreground text-sm">Loading full match...</p>}
           {error && (
             <p role="alert" className="text-loss text-sm">
               {error}

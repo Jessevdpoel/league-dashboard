@@ -9,8 +9,8 @@ export interface TopChampionsCardProps {
 
 export function TopChampionsCard({ champions, version }: TopChampionsCardProps) {
   return (
-    <section aria-label="Top champions" className="rounded-lg bg-ink-900 border border-line-subtle p-5">
-      <p className="text-xs uppercase tracking-wide text-cyan-400 font-semibold">Top Champions</p>
+    <section aria-label="Top champions" className="rounded-lg bg-card border border-border p-5">
+      <p className="text-xs uppercase tracking-wide text-accent-foreground font-semibold">Top Champions</p>
       <ul className="mt-2 flex flex-col gap-2">
         {champions.map((champion) => {
           const winRate = champion.games === 0 ? 0 : Math.round((champion.wins / champion.games) * 100);
@@ -19,10 +19,10 @@ export function TopChampionsCard({ champions, version }: TopChampionsCardProps) 
               <IconImg
                 src={championIconUrl(version, champion.championName)}
                 alt={champion.championName}
-                className="w-8 h-8 rounded-md border border-line-strong"
+                className="w-8 h-8 rounded-md border border-border"
               />
-              <span className="text-frost-300 font-semibold flex-1">{champion.championName}</span>
-              <span className="text-frost-500">
+              <span className="text-foreground/80 font-semibold flex-1">{champion.championName}</span>
+              <span className="text-muted-foreground">
                 {champion.games} games · {winRate}%
               </span>
             </li>

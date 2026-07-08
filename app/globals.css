@@ -58,17 +58,6 @@
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
 
-  /* Legacy Arcane Neon tokens — removed at the end of Task 3's sweep */
-  --color-ink-950: #070c1c;
-  --color-ink-900: #0d1730;
-  --color-line-subtle: #1c2f5c;
-  --color-line-strong: #2a4a8c;
-  --color-cyan-400: #38e8ff;
-  --color-indigo-500: #3a4bd6;
-  --color-frost-100: #eaf6ff;
-  --color-frost-300: #cfe4ff;
-  --color-frost-500: #9db3d9;
-
   /* Status colors — permanent */
   --color-win: #3af0b0;
   --color-loss: #ff5f5f;

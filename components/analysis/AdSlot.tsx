@@ -41,7 +41,7 @@ export function AdSlot({ slot, height = 90, label = 'Advertisement', className =
 
   return (
     <div
-      className={`overflow-hidden rounded-lg ${live ? '' : 'flex items-center justify-center border border-dashed border-line-subtle text-xs text-frost-500'} ${className}`}
+      className={`overflow-hidden rounded-lg ${live ? '' : 'flex items-center justify-center border border-dashed border-border text-xs text-muted-foreground'} ${className}`}
       style={{ height }}
       aria-label={label}
     >

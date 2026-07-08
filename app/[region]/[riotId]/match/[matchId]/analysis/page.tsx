@@ -57,7 +57,7 @@ export default async function MatchAnalysisPage({
 
     return (
       <div className="mx-auto max-w-4xl p-6 md:p-8">
-        <Link href={basePath} className="text-sm text-frost-500 hover:text-cyan-400">
+        <Link href={basePath} className="text-sm text-muted-foreground hover:text-accent-foreground">
           {account.gameName}#{account.tagLine}
         </Link>
         <div className="mt-4">
@@ -75,7 +75,7 @@ export default async function MatchAnalysisPage({
   } catch (error) {
     if (error instanceof RiotApiError && error.status === 404) {
       return (
-        <p className="p-8 text-frost-100">
+        <p className="p-8 text-foreground">
           We couldn&apos;t find that match. It may be too old for Riot&apos;s API, or the summoner
           isn&apos;t in it.
         </p>
@@ -83,7 +83,7 @@ export default async function MatchAnalysisPage({
     }
     if (error instanceof RiotApiError && error.status === 429) {
       return (
-        <p className="p-8 text-frost-100">
+        <p className="p-8 text-foreground">
           We&apos;re being rate limited by Riot right now. Please wait a moment and try again.
         </p>
       );

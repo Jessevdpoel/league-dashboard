@@ -86,7 +86,7 @@ export function SearchForm({ variant = 'hero' }: SearchFormProps) {
   return (
     <form onSubmit={handleSubmit} className="relative flex flex-col gap-2">
       <div
-        className={`flex items-center gap-1 rounded-xl border border-line-strong bg-ink-900 p-1.5 ${
+        className={`flex items-center gap-1 rounded-xl border border-border bg-card p-1.5 ${
           isHero ? 'shadow-[0_0_24px_rgba(56,232,255,0.25)]' : ''
         }`}
       >
@@ -94,12 +94,12 @@ export function SearchForm({ variant = 'hero' }: SearchFormProps) {
           value={region}
           onChange={(event) => setRegion(event.target.value as PlatformRegion)}
           aria-label="Region"
-          className={`bg-transparent text-frost-500 font-semibold border-r border-line-subtle px-3 ${
+          className={`bg-transparent text-muted-foreground font-semibold border-r border-border px-3 ${
             isHero ? 'py-2.5 text-sm' : 'py-1.5 text-xs'
           }`}
         >
           {PLATFORM_REGIONS.map((platform) => (
-            <option key={platform} value={platform} className="bg-ink-900">
+            <option key={platform} value={platform} className="bg-card">
               {REGION_LABELS[platform]}
             </option>
           ))}
@@ -110,13 +110,13 @@ export function SearchForm({ variant = 'hero' }: SearchFormProps) {
           placeholder="GameName#Tag (tag optional)"
           aria-label="Riot ID"
           autoComplete="off"
-          className={`flex-1 bg-transparent text-frost-100 placeholder:text-frost-500/60 outline-none px-3 ${
+          className={`flex-1 bg-transparent text-foreground placeholder:text-muted-foreground/60 outline-none px-3 ${
             isHero ? 'py-2.5 text-sm' : 'py-1.5 text-xs w-40'
           }`}
         />
         <button
           type="submit"
-          className={`uppercase rounded-lg bg-gradient-to-br from-cyan-400 to-indigo-500 font-bold text-ink-950 tracking-wide ${
+          className={`uppercase rounded-lg bg-gradient-to-br from-accent-foreground to-primary font-bold text-background tracking-wide ${
             isHero ? 'px-6 py-2.5 text-sm' : 'px-4 py-1.5 text-xs'
           }`}
         >
@@ -126,14 +126,14 @@ export function SearchForm({ variant = 'hero' }: SearchFormProps) {
       {suggestions.length > 0 && (
         <ul
           aria-label="Riot ID suggestions"
-          className="absolute top-full left-0 right-0 z-20 mt-1 overflow-hidden rounded-xl border border-line-strong bg-ink-900 shadow-lg"
+          className="absolute top-full left-0 right-0 z-20 mt-1 overflow-hidden rounded-xl border border-border bg-card shadow-lg"
         >
           {suggestions.map((suggestion) => (
             <li key={`${suggestion.gameName}#${suggestion.tagLine}`}>
               <button
                 type="button"
                 onClick={() => navigateTo(suggestion.gameName, suggestion.tagLine)}
-                className="w-full px-4 py-2 text-left text-sm text-frost-100 hover:bg-ink-950"
+                className="w-full px-4 py-2 text-left text-sm text-foreground hover:bg-background"
               >
                 {`${suggestion.gameName}#${suggestion.tagLine}`}
               </button>

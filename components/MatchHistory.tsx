@@ -10,7 +10,7 @@ export interface MatchHistoryProps {
 
 export function MatchHistory({ matches, version, basePath }: MatchHistoryProps) {
   if (matches.length === 0) {
-    return <p className="text-frost-300">No recent matches found.</p>;
+    return <p className="text-foreground/80">No recent matches found.</p>;
   }
   return (
     <ul className="flex flex-col gap-4">
