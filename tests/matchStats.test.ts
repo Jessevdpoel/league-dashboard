@@ -8,6 +8,7 @@ function fakeParticipant(overrides: Partial<ParticipantDto>): ParticipantDto {
     riotIdGameName: 'Me',
     riotIdTagline: 'NA1',
     championName: 'Ahri',
+    championId: 1,
     kills: 1,
     deaths: 1,
     assists: 1,

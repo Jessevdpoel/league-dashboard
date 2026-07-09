@@ -18,6 +18,7 @@ function mkParticipant(over: Partial<ParticipantDto> & Pick<ParticipantDto, 'puu
     riotIdGameName: 'Player',
     riotIdTagline: 'EUW',
     championName: 'Champ',
+    championId: 1,
     kills: 0,
     deaths: 0,
     assists: 0,

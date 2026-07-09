@@ -3,7 +3,7 @@
 Status snapshot after Phases 0–2. Plans `00`–`06` are the design; this file tracks
 what is **done**, what is **buildable now**, and what is **blocked** (and by what).
 
-Last updated: 2026-07-07 · Branch: `feature/match-insights-phase0`
+Last updated: 2026-07-08 · Branch: `feature/match-insights-phase0`
 
 ## Shipped so far
 
@@ -14,6 +14,11 @@ Last updated: 2026-07-07 · Branch: `feature/match-insights-phase0`
 - **Riot ID search** — default-tag fallback + self-built `riot_id_index` suggestions implemented
   per `08-riot-id-search.md`; "search all of Riot by name" is impossible via the official API
   (no name→tags endpoint) and stays out of scope.
+- **F2 — ParticipantFacts persistence** — organic writes from every analysis view + crawl writes
+  from fill jobs (`lib/analysis/participantFacts.ts`, `benchmarkDb.ts`).
+- **F1 — Benchmark pipeline** — lazy on-demand cohort fills (`BenchmarkJob` + cron route +
+  `benchmarks:fill` CLI), quantile aggregation, previous-patch fallback at lookup. Design:
+  `docs/superpowers/specs/2026-07-08-benchmark-data-acquisition-design.md`.
 
 ---
 
@@ -29,28 +34,6 @@ Last updated: 2026-07-07 · Branch: `feature/match-insights-phase0`
 
 > The ad infra is already a one-env-var flip: set `NEXT_PUBLIC_ADSENSE_CLIENT` and pass real
 > `slot` ids to `AdSlot`. Until then, slots render labeled zero-CLS placeholders.
-
----
-
-## 🟡 Foundational unlock (do this first — it gates the most)
-
-### F1 — Benchmark data pipeline  ⭐ highest leverage
-The `Benchmark` table is **empty** and nothing writes to it. Without it, `computeMetrics`
-returns raw values with **no percentiles, no bands, and null category scores** — so the
-analysis page's score bars currently show "—" for every category.
-
-- **Build:** a job that samples matches per `(patch, rankTier, role, metricName)`, computes
-  `p25/p50/p75/p90` + `sampleN`, and upserts `Benchmark` rows.
-- **Feeds:** the score bars (04), percentile bands, rank-adaptive coaching (03), and SEO
-  pages (05).
-- **Depends on:** F2 (a corpus of `ParticipantFacts` to aggregate).
-
-### F2 — Persist `ParticipantFacts`
-Schema exists; nothing writes to it. The analysis page recomputes metrics from raw each time.
-Persisting per-match participant metrics builds the corpus F1 aggregates and lets the trend
-layer (T1) read history without re-fetching every match.
-
-- **Build:** on match fetch/analysis, extract metrics and upsert `participant_facts`.
 
 ---
 
@@ -103,8 +86,7 @@ layer (T1) read history without re-fetching every match.
 - No test for `prismaAnalysisStore` (DB-backed) — intentionally, tests use a fake store.
 
 ## Suggested order
-1. **F2 → F1** (persist facts → benchmarks) — unlocks scores, bands, trends, SEO.
-2. **T1 → T2** (trend fact sheet → insights page) — biggest pageview/return-visit driver.
-3. **G1/G2** (quota + spend alert) — before any real traffic.
-4. **P1–P3, O1** — engagement polish + real tips.
-5. **B1–B5** (AdSense) — whenever the account is ready; infra already waits.
+1. **T1 → T2** (trend fact sheet → insights page) — biggest pageview/return-visit driver.
+2. **G1/G2** (quota + spend alert) — before any real traffic.
+3. **P1–P3, O1** — engagement polish + real tips.
+4. **B1–B5** (AdSense) — whenever the account is ready; infra already waits.

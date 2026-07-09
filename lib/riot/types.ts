@@ -17,6 +17,13 @@ export interface LeagueEntryDto {
   leaguePoints: number;
   wins: number;
   losses: number;
+  /** Present on tier-ladder entries (LEAGUE-V4 added puuid in 2024); absent on by-puuid responses. */
+  puuid?: string;
+}
+
+/** LEAGUE-V4 master/grandmaster/challenger league list. */
+export interface LeagueListDto {
+  entries: { puuid: string; leaguePoints: number }[];
 }
 
 /**
@@ -45,6 +52,7 @@ export interface ParticipantDto {
   riotIdGameName: string;
   riotIdTagline: string;
   championName: string;
+  championId: number;
   kills: number;
   deaths: number;
   assists: number;

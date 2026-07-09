@@ -50,7 +50,7 @@ export function findLaneOpponentPuuid(match: MatchDto, puuid: string): string | 
 }
 
 /** timeline participantId -> role, joined via puuid through the match. */
-function rolesByParticipantId(match: MatchDto, timeline: MatchTimelineDto): Record<number, string> {
+export function rolesByParticipantId(match: MatchDto, timeline: MatchTimelineDto): Record<number, string> {
   const roleByPuuid = new Map(match.info.participants.map((p) => [p.puuid, p.teamPosition ?? '']));
   const out: Record<number, string> = {};
   for (const tp of timeline.info.participants) {

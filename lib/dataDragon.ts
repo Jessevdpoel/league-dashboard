@@ -35,3 +35,8 @@ export function summonerSpellIconUrl(version: string, spellId: number): string |
 export function rankEmblemUrl(tier: string): string {
   return `${COMMUNITY_DRAGON_BASE}/plugins/rcp-fe-lol-static-assets/global/default/images/ranked-emblems/emblem-${tier.toLowerCase()}.png`;
 }
+
+/** DDragon version (e.g. 14.13.1) -> patch (14.13) used to key benchmarks. */
+export function patchFromVersion(version: string): string {
+  return version.split('.').slice(0, 2).join('.');
+}
