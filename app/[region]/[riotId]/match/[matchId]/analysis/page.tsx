@@ -12,6 +12,16 @@ import { extractGoldDiffSeries, extractTimelineFacts } from '@/lib/analysis/time
 import { analyzeMatch, PROMPT_VERSION } from '@/lib/analysis/analyzeMatch';
 import { prismaAnalysisStore } from '@/lib/analysis/analysisStore';
 import { AnalysisView } from '@/components/analysis/AnalysisView';
+import { cohortTier, isBenchmarkableTier } from '@/lib/analysis/cohort';
+import { loadBenchmarkLookup } from '@/lib/analysis/benchmarkStore';
+import {
+  enqueueBenchmarkJob,
+  hasActiveBenchmarkJob,
+  prismaBenchmarkReader,
+  saveParticipantFacts,
+} from '@/lib/analysis/benchmarkDb';
+import { extractMatchFacts } from '@/lib/analysis/participantFacts';
+import type { BenchmarkLookup } from '@/lib/analysis/metrics';
 
 export default async function MatchAnalysisPage({
   params,
@@ -43,7 +53,33 @@ export default async function MatchAnalysisPage({
     const rank = solo?.tier ?? 'UNRANKED';
     const patch = patchFromVersion(version);
 
-    const factSheet = buildSingleMatchFactSheet(match, timeline, account.puuid, { rank, patch });
+    // Benchmarks: batched lookup with previous-patch fallback; a true miss
+    // enqueues a background cohort fill. Organic facts persist from every view.
+    // All of it is best-effort — DB trouble must never break the page.
+    const role = participant.teamPosition ?? '';
+    const rankTier = isBenchmarkableTier(rank) ? cohortTier(rank) : null;
+    let benchmark: BenchmarkLookup | undefined;
+    let benchmarkPending = false;
+    if (process.env.DATABASE_URL && rankTier && role) {
+      try {
+        benchmark =
+          (await loadBenchmarkLookup({ patch, rankTier, role }, prismaBenchmarkReader)) ??
+          undefined;
+        await saveParticipantFacts(extractMatchFacts(match, timeline, { patch, rankTier }));
+        if (!benchmark) {
+          await enqueueBenchmarkJob({ patch, rankTier, region: platform });
+          benchmarkPending = await hasActiveBenchmarkJob(patch, rankTier);
+        }
+      } catch (error) {
+        console.error('benchmarks unavailable (non-fatal) —', error);
+      }
+    }
+
+    const factSheet = buildSingleMatchFactSheet(match, timeline, account.puuid, {
+      rank,
+      patch,
+      benchmark,
+    });
 
     const goldDiffSeries = extractGoldDiffSeries(
       timeline,
@@ -73,6 +109,7 @@ export default async function MatchAnalysisPage({
             basePath={basePath}
             goldDiffSeries={goldDiffSeries}
             deaths={timelineFacts.deaths}
+            benchmarkPending={benchmarkPending}
           />
         </div>
       </div>

@@ -29,6 +29,8 @@ export interface AnalysisViewProps {
   goldDiffSeries: GoldDiffPoint[];
   /** Death facts for timeline markers (from extractTimelineFacts on the page). */
   deaths: DeathFact[];
+  /** A benchmark fill job is queued/running for this cohort — scores will appear shortly. */
+  benchmarkPending?: boolean;
 }
 
 const CATEGORY_LABELS: Record<MetricCategory, string> = {
@@ -47,7 +49,16 @@ function scoreColor(score: number): string {
 }
 
 /** Category scores — render instantly from the stats engine, no LLM. */
-function ScoreBars({ scores }: { scores: FactSheet['scores'] }) {
+function ScoreBars({
+  scores,
+  benchmarkPending = false,
+}: {
+  scores: FactSheet['scores'];
+  benchmarkPending?: boolean;
+}) {
+  const emptyCopy = benchmarkPending
+    ? 'Building benchmarks for your rank — check back in a few minutes'
+    : 'Needs more data';
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
       {CATEGORY_ORDER.map((cat) => {
@@ -69,7 +80,7 @@ function ScoreBars({ scores }: { scores: FactSheet['scores'] }) {
                 <div className={`h-full rounded-full ${scoreColor(score)}`} style={{ width: `${score}%` }} />
               )}
             </div>
-            {score === null && <p className="mt-1 text-[11px] text-muted-foreground">Needs more data</p>}
+            {score === null && <p className="mt-1 text-[11px] text-muted-foreground">{emptyCopy}</p>}
           </div>
         );
       })}
@@ -130,6 +141,7 @@ export function AnalysisView({
   basePath,
   goldDiffSeries,
   deaths,
+  benchmarkPending,
 }: AnalysisViewProps) {
   const { context } = factSheet;
   const findingsById = new Map(factSheet.findings.map((f) => [f.id, f]));
@@ -172,7 +184,7 @@ export function AnalysisView({
       </div>
 
       {/* 3. Category detail bars (also the no-benchmark fallback) */}
-      <ScoreBars scores={factSheet.scores} />
+      <ScoreBars scores={factSheet.scores} benchmarkPending={benchmarkPending} />
 
       {/* 4. Timeline strip — renders nothing without an opponent series */}
       <TimelineStrip series={goldDiffSeries} deaths={deaths} />
