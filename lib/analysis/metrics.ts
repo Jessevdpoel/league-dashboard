@@ -79,7 +79,10 @@ function participantFor(match: MatchDto, puuid: string): ParticipantDto {
 }
 
 /** Raw metric values pulled from match `challenges` + timeline facts. */
-function rawValues(participant: ParticipantDto, timeline: TimelineFacts): Record<MetricName, number> {
+export function rawMetricValues(
+  participant: ParticipantDto,
+  timeline: TimelineFacts
+): Record<MetricName, number> {
   const c = participant.challenges ?? {};
   return {
     csAt10: c.laneMinionsFirst10Minutes ?? 0,
@@ -110,7 +113,7 @@ export function computeMetrics(
   benchmark?: BenchmarkLookup
 ): MetricSet {
   const participant = participantFor(match, puuid);
-  const raw = rawValues(participant, timeline);
+  const raw = rawMetricValues(participant, timeline);
 
   const metrics = {} as Record<MetricName, MetricValue>;
   const buckets: Record<MetricCategory, number[]> = {

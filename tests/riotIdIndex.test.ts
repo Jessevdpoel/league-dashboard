@@ -12,6 +12,7 @@ function participant(overrides: Partial<ParticipantDto>): ParticipantDto {
     riotIdGameName: 'Faker',
     riotIdTagline: 'KR1',
     championName: 'Azir',
+    championId: 1,
     kills: 0,
     deaths: 0,
     assists: 0,

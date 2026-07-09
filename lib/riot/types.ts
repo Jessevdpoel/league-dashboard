@@ -45,6 +45,7 @@ export interface ParticipantDto {
   riotIdGameName: string;
   riotIdTagline: string;
   championName: string;
+  championId: number;
   kills: number;
   deaths: number;
   assists: number;
