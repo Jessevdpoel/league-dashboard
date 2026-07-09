@@ -13,7 +13,8 @@
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate deploy",
     "db:migrate:dev": "prisma migrate dev",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "benchmarks:fill": "tsx scripts/benchmarks-fill.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.110.0",
@@ -45,6 +46,7 @@
     "postcss": "^8.4.47",
     "prisma": "^7.8.0",
     "tailwindcss": "^4.3.2",
+    "tsx": "^4.23.0",
     "typescript": "^5.6.3",
     "vitest": "^2.1.3"
   }

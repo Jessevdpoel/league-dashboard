@@ -6,17 +6,12 @@ import { getLeagueEntriesByPuuid } from '@/lib/riot/league';
 import { getMatchById, getMatchTimeline } from '@/lib/riot/match';
 import { parseRiotIdSegment } from '@/lib/riotId';
 import { RiotApiError } from '@/lib/riot/client';
-import { getLatestDDragonVersion } from '@/lib/dataDragon';
+import { getLatestDDragonVersion, patchFromVersion } from '@/lib/dataDragon';
 import { buildSingleMatchFactSheet, findLaneOpponentPuuid } from '@/lib/analysis/factSheet';
 import { extractGoldDiffSeries, extractTimelineFacts } from '@/lib/analysis/timelineFacts';
 import { analyzeMatch, PROMPT_VERSION } from '@/lib/analysis/analyzeMatch';
 import { prismaAnalysisStore } from '@/lib/analysis/analysisStore';
 import { AnalysisView } from '@/components/analysis/AnalysisView';
-
-/** DDragon version (e.g. 14.13.1) -> patch (14.13) used to key benchmarks. */
-function patchFromVersion(version: string): string {
-  return version.split('.').slice(0, 2).join('.');
-}
 
 export default async function MatchAnalysisPage({
   params,
