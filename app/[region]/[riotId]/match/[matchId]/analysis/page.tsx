@@ -65,9 +65,9 @@ export default async function MatchAnalysisPage({
         benchmark =
           (await loadBenchmarkLookup({ patch, rankTier, role }, prismaBenchmarkReader)) ??
           undefined;
-        await saveParticipantFacts(extractMatchFacts(match, timeline, { patch, rankTier }));
+        saveParticipantFacts(extractMatchFacts(match, timeline, { patch, rankTier })).catch(console.error);
         if (!benchmark) {
-          await enqueueBenchmarkJob({ patch, rankTier, region: platform });
+          enqueueBenchmarkJob({ patch, rankTier, region: platform }).catch(console.error);
           benchmarkPending = await hasActiveBenchmarkJob(patch, rankTier);
         }
       } catch (error) {
