@@ -3,6 +3,7 @@ import {
   PROFILE_METRICS,
   profileMetricMeans,
   profileSkillScores,
+  deriveCoachInsights,
 } from '../../lib/analysis/coachInsights';
 import type { BenchmarkLookup } from '../../lib/analysis/metrics';
 import type { ParticipantDto } from '../../lib/riot/types';
@@ -57,4 +58,51 @@ describe('profileSkillScores', () => {
 it('PROFILE_METRICS contains only timeline-free metrics', () => {
   expect(PROFILE_METRICS).not.toContain('goldDiffAt10');
   expect(PROFILE_METRICS).toContain('deaths');
+});
+
+describe('deriveCoachInsights', () => {
+  const tenGames = (deaths: number[]) =>
+    deaths.map((d) =>
+      p({ deaths: d, challenges: { laneMinionsFirst10Minutes: 50, damagePerMinute: 700 } })
+    );
+
+  it('returns empty below 5 games', () => {
+    const lookup: BenchmarkLookup = () => 50;
+    expect(deriveCoachInsights(tenGames([1, 2, 3, 4]), lookup, 'DIAMOND')).toEqual([]);
+  });
+
+  it('emits lever for the worst metric and strength for the best', () => {
+    // csAt10 raw pct 20 (goodness 20 → lever), damagePerMin raw 90 (goodness 90 → strength)
+    const lookup: BenchmarkLookup = (metric) =>
+      metric === 'csAt10' ? 20 : metric === 'damagePerMin' ? 90 : 50;
+    const insights = deriveCoachInsights(tenGames([4, 4, 4, 4, 4]), lookup, 'DIAMOND');
+    expect(insights[0]).toEqual({
+      kind: 'lever',
+      message: 'CS at 10 sits at the ~20th percentile for DIAMOND — your biggest lever',
+      good: false,
+    });
+    expect(insights[1]).toEqual({
+      kind: 'strength',
+      message: 'Damage/min sits at the ~90th percentile for DIAMOND',
+      good: true,
+    });
+  });
+
+  it('emits a deaths trend across halves of a 10-game window', () => {
+    const lookup: BenchmarkLookup = () => 50; // no lever/strength triggers
+    // newest-first: recent 5 avg 2 deaths, older 5 avg 4 deaths → down 50%
+    const insights = deriveCoachInsights(
+      tenGames([2, 2, 2, 2, 2, 4, 4, 4, 4, 4]),
+      lookup,
+      'DIAMOND'
+    );
+    expect(insights).toEqual([
+      { kind: 'trend', message: 'Deaths per game down 50% over your last 5 games', good: true },
+    ]);
+  });
+
+  it('stays silent when nothing crosses thresholds', () => {
+    const lookup: BenchmarkLookup = () => 50;
+    expect(deriveCoachInsights(tenGames([3, 3, 3, 3, 3, 3, 3, 3, 3, 3]), lookup, 'DIAMOND')).toEqual([]);
+  });
 });

@@ -87,3 +87,88 @@ export function profileSkillScores(
   }
   return scores;
 }
+
+const METRIC_LABELS: Record<(typeof PROFILE_METRICS)[number], string> = {
+  csAt10: 'CS at 10',
+  platesTaken: 'Plates taken',
+  visionScorePerMin: 'Vision score/min',
+  killParticipation: 'Kill participation',
+  soloKills: 'Solo kills',
+  damagePerMin: 'Damage/min',
+  damageShare: 'Damage share',
+  deaths: 'Deaths',
+};
+
+function ordinal(n: number): string {
+  const rem100 = n % 100;
+  if (rem100 >= 11 && rem100 <= 13) return `${n}th`;
+  const suffix = { 1: 'st', 2: 'nd', 3: 'rd' }[n % 10] ?? 'th';
+  return `${n}${suffix}`;
+}
+
+export interface CoachInsight {
+  kind: 'lever' | 'strength' | 'trend';
+  message: string;
+  good: boolean;
+}
+
+const LEVER_BELOW = 45;
+const STRENGTH_ABOVE = 65;
+const TREND_MIN_CHANGE_PCT = 15;
+
+/** `participants` newest-first. 0–3 chips; empty means "hide the strip". */
+export function deriveCoachInsights(
+  participants: ParticipantDto[],
+  lookup: BenchmarkLookup,
+  cohortLabel: string
+): CoachInsight[] {
+  if (participants.length < 5) return [];
+  const means = profileMetricMeans(participants);
+
+  const scored: { metric: MetricName; pct: number }[] = [];
+  for (const metric of PROFILE_METRICS) {
+    const mean = means[metric];
+    if (mean === undefined) continue;
+    const g = goodness(metric, mean, lookup);
+    if (g !== undefined) scored.push({ metric, pct: Math.round(g) });
+  }
+
+  const insights: CoachInsight[] = [];
+  if (scored.length > 0) {
+    const worst = scored.reduce((a, b) => (b.pct < a.pct ? b : a));
+    if (worst.pct < LEVER_BELOW) {
+      insights.push({
+        kind: 'lever',
+        message: `${METRIC_LABELS[worst.metric as keyof typeof METRIC_LABELS]} sits at the ~${ordinal(worst.pct)} percentile for ${cohortLabel} — your biggest lever`,
+        good: false,
+      });
+    }
+    const best = scored.reduce((a, b) => (b.pct > a.pct ? b : a));
+    if (best.pct > STRENGTH_ABOVE) {
+      insights.push({
+        kind: 'strength',
+        message: `${METRIC_LABELS[best.metric as keyof typeof METRIC_LABELS]} sits at the ~${ordinal(best.pct)} percentile for ${cohortLabel}`,
+        good: true,
+      });
+    }
+  }
+
+  if (participants.length >= 10) {
+    const mean = (xs: ParticipantDto[]) => xs.reduce((s, x) => s + x.deaths, 0) / xs.length;
+    const recent = mean(participants.slice(0, 5));
+    const older = mean(participants.slice(5, 10));
+    if (older > 0) {
+      const changePct = ((older - recent) / older) * 100;
+      if (Math.abs(changePct) >= TREND_MIN_CHANGE_PCT) {
+        const x = Math.abs(Math.round(changePct));
+        insights.push(
+          changePct > 0
+            ? { kind: 'trend', message: `Deaths per game down ${x}% over your last 5 games`, good: true }
+            : { kind: 'trend', message: `Deaths per game up ${x}% over your last 5 games`, good: false }
+        );
+      }
+    }
+  }
+
+  return insights.slice(0, 3);
+}
