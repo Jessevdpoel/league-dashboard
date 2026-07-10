@@ -5,6 +5,7 @@ import {
   itemIconUrl,
   summonerSpellIconUrl,
   rankEmblemUrl,
+  profileIconUrl,
 } from '../lib/dataDragon';
 
 describe('getLatestDDragonVersion', () => {
@@ -66,6 +67,14 @@ describe('rankEmblemUrl', () => {
   it('builds the rank emblem URL with a lowercased tier, via Community Dragon "latest"', () => {
     expect(rankEmblemUrl('CHALLENGER')).toBe(
       'https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/images/ranked-emblems/emblem-challenger.png'
+    );
+  });
+});
+
+describe('profileIconUrl', () => {
+  it('builds the ddragon profile icon URL', () => {
+    expect(profileIconUrl('14.13.1', 685)).toBe(
+      'https://ddragon.leagueoflegends.com/cdn/14.13.1/img/profileicon/685.png'
     );
   });
 });

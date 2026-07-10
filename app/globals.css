@@ -63,9 +63,25 @@
   --color-loss: #ff5f5f;
   --color-amber: #ffc04d;
 
+  /* Summit palette — gold = identity/CTA, coach = AI-only */
+  --color-gold: #c9a86a;
+  --color-gold-light: #e9cf94;
+  --color-coach: #6577f3;
+  --color-coach-light: #8ea2ff;
+  --color-panel: #141821;
+  --color-panel-2: #10131a;
+  --color-panel-border: #232936;
+
   --font-sans: var(--font-rajdhani), sans-serif;
 }
 
 body {
   @apply bg-background text-foreground font-sans;
+}
+
+.summit-bg {
+  background:
+    radial-gradient(1000px 500px at 75% -15%, rgba(88, 101, 242, 0.14), transparent 55%),
+    radial-gradient(800px 400px at 5% 10%, rgba(201, 168, 106, 0.07), transparent 50%),
+    linear-gradient(180deg, #0e1015 0%, #0a0c10 100%);
 }
