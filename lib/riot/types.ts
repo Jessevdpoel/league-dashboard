@@ -73,6 +73,8 @@ export interface ParticipantDto {
   visionScore: number;
   totalMinionsKilled?: number;
   neutralMinionsKilled?: number;
+  largestMultiKill?: number;
+  firstBloodKill?: boolean;
   challenges?: ChallengesDto;
 }
 

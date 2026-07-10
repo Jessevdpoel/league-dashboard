@@ -1,4 +1,5 @@
 import type { MatchDto, ParticipantDto } from './riot/types';
+import { performanceBadge } from './matchBadges';
 
 export interface ChampionStat {
   championName: string;
@@ -34,6 +35,9 @@ export interface MatchSummary {
   durationSeconds: number;
   queueId: number;
   gameCreation: number;
+  role: string | null;
+  cs: number | null;
+  badge: string | null;
 }
 
 export function toMatchSummary(match: MatchDto, puuid: string): MatchSummary {
@@ -62,6 +66,12 @@ export function toMatchSummary(match: MatchDto, puuid: string): MatchSummary {
     durationSeconds: match.info.gameDuration,
     queueId: match.info.queueId,
     gameCreation: match.info.gameCreation,
+    role: participant.teamPosition ?? null,
+    cs:
+      participant.totalMinionsKilled !== undefined
+        ? participant.totalMinionsKilled + (participant.neutralMinionsKilled ?? 0)
+        : null,
+    badge: performanceBadge(participant),
   };
 }
 

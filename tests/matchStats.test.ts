@@ -86,6 +86,9 @@ describe('toMatchSummary', () => {
       durationSeconds: 1500,
       queueId: 420,
       gameCreation: 1000,
+      role: null,
+      cs: null,
+      badge: null,
     });
   });
 
@@ -170,5 +173,24 @@ describe('computeChampionPool', () => {
     expect(bestChampionIndex(pool)).toBe(1); // C excluded: fewer than 3 games
     expect(bestChampionIndex([])).toBe(-1);
     expect(bestChampionIndex([pool[2]])).toBe(0); // nobody qualifies → first
+  });
+});
+
+describe('toMatchSummary extensions', () => {
+  it('carries role, cs and badge', () => {
+    const summary = toMatchSummary(
+      match('m9', p({ teamPosition: 'TOP', totalMinionsKilled: 100, neutralMinionsKilled: 20, largestMultiKill: 2 })),
+      'me'
+    );
+    expect(summary.role).toBe('TOP');
+    expect(summary.cs).toBe(120);
+    expect(summary.badge).toBe('DOUBLE KILL');
+  });
+
+  it('nulls cs and role when source fields absent', () => {
+    const summary = toMatchSummary(match('m10', p({})), 'me');
+    expect(summary.role).toBeNull();
+    expect(summary.cs).toBeNull();
+    expect(summary.badge).toBeNull();
   });
 });
