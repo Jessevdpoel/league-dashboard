@@ -50,3 +50,17 @@ export const prismaAnalysisStore: AnalysisStore = {
     });
   },
 };
+
+/** Which of `matchIds` already have a stored single-match analysis for this player. */
+export async function findAnalyzedMatchIds(
+  puuid: string,
+  matchIds: string[],
+  promptVersion: string
+): Promise<Set<string>> {
+  if (matchIds.length === 0) return new Set();
+  const rows = await prisma.analysis.findMany({
+    where: { puuid, matchId: { in: matchIds }, type: 'single', promptVersion },
+    select: { matchId: true },
+  });
+  return new Set(rows.map((r) => r.matchId).filter((id): id is string => id !== null));
+}

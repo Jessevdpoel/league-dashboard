@@ -138,3 +138,19 @@ model BenchmarkJob {
   @@index([status, createdAt])
   @@map("benchmark_jobs")
 }
+
+/// Periodic snapshot of a player's rank in a queue, used to render rank-history
+/// sparklines. Written opportunistically (lib/rankSnapshotsDb.ts) whenever the
+/// profile page fetches fresh league entries.
+model RankSnapshot {
+  id           String   @id @default(cuid())
+  puuid        String
+  queueType    String
+  tier         String
+  division     String
+  leaguePoints Int
+  recordedAt   DateTime @default(now())
+
+  @@index([puuid, queueType, recordedAt])
+  @@map("rank_snapshots")
+}
