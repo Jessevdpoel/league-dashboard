@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { computeTopChampions, toMatchSummary, computeRecentPerformance } from '../lib/matchStats';
+import { computeTopChampions, toMatchSummary, computeRecentPerformance, computeChampionPool, bestChampionIndex } from '../lib/matchStats';
 import type { MatchDto, ParticipantDto } from '../lib/riot/types';
 
 function fakeParticipant(overrides: Partial<ParticipantDto>): ParticipantDto {
@@ -96,18 +96,6 @@ describe('toMatchSummary', () => {
 });
 
 describe('computeRecentPerformance', () => {
-  function p(over: Partial<ParticipantDto>): ParticipantDto {
-    return {
-      puuid: 'me', riotIdGameName: 'a', riotIdTagline: 'b',
-      championName: 'Aatrox', championId: 266,
-      kills: 5, deaths: 4, assists: 6, win: true, teamId: 100,
-      item0: 0, item1: 0, item2: 0, item3: 0, item4: 0, item5: 0, item6: 0,
-      summoner1Id: 4, summoner2Id: 14,
-      totalDamageDealtToChampions: 20000, visionScore: 20,
-      ...over,
-    };
-  }
-
   it('aggregates wins, KDA and averages', () => {
     const result = computeRecentPerformance([
       p({ kills: 10, deaths: 5, assists: 10, win: true, challenges: { killParticipation: 0.6 } }),
@@ -135,5 +123,52 @@ describe('computeRecentPerformance', () => {
     expect(empty.kdaRatio).toBeNull();
     expect(empty.streak).toBeNull();
     expect(empty.avgKillParticipationPct).toBeNull();
+  });
+});
+
+function p(over: Partial<ParticipantDto>): ParticipantDto {
+  return {
+    puuid: 'me', riotIdGameName: 'a', riotIdTagline: 'b',
+    championName: 'Aatrox', championId: 266,
+    kills: 5, deaths: 4, assists: 6, win: true, teamId: 100,
+    item0: 0, item1: 0, item2: 0, item3: 0, item4: 0, item5: 0, item6: 0,
+    summoner1Id: 4, summoner2Id: 14,
+    totalDamageDealtToChampions: 20000, visionScore: 20,
+    ...over,
+  };
+}
+
+function match(id: string, participant: ParticipantDto, durationSeconds = 1800): MatchDto {
+  return {
+    metadata: { matchId: id, participants: [participant.puuid] },
+    info: { gameCreation: 0, gameDuration: durationSeconds, queueId: 420, participants: [participant] },
+  };
+}
+
+describe('computeChampionPool', () => {
+  it('aggregates per champion with kda and cs/min', () => {
+    const pool = computeChampionPool(
+      [
+        match('m1', p({ championName: 'Aatrox', kills: 8, deaths: 2, assists: 4, win: true, totalMinionsKilled: 180, neutralMinionsKilled: 0 })),
+        match('m2', p({ championName: 'Aatrox', kills: 2, deaths: 6, assists: 4, win: false, totalMinionsKilled: 150, neutralMinionsKilled: 30 })),
+        match('m3', p({ championName: 'Fiora', kills: 5, deaths: 5, assists: 5, win: true })),
+      ],
+      'me'
+    );
+    expect(pool[0]).toMatchObject({ championName: 'Aatrox', games: 2, wins: 1, winRatePct: 50 });
+    expect(pool[0].kda).toBe(2.25); // (10+8)/8
+    expect(pool[0].csPerMin).toBe(6); // 360 cs / 60 min
+    expect(pool[1].csPerMin).toBeNull(); // fields absent
+  });
+
+  it('picks best champion by winrate with >=3 games', () => {
+    const pool = [
+      { championName: 'A', games: 5, wins: 2, winRatePct: 40, kda: 2, csPerMin: 6 },
+      { championName: 'B', games: 3, wins: 3, winRatePct: 100, kda: 3, csPerMin: 7 },
+      { championName: 'C', games: 1, wins: 1, winRatePct: 100, kda: 9, csPerMin: 8 },
+    ];
+    expect(bestChampionIndex(pool)).toBe(1); // C excluded: fewer than 3 games
+    expect(bestChampionIndex([])).toBe(-1);
+    expect(bestChampionIndex([pool[2]])).toBe(0); // nobody qualifies → first
   });
 });

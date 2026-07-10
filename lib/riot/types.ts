@@ -71,6 +71,8 @@ export interface ParticipantDto {
   summoner2Id: number;
   totalDamageDealtToChampions: number;
   visionScore: number;
+  totalMinionsKilled?: number;
+  neutralMinionsKilled?: number;
   challenges?: ChallengesDto;
 }
 

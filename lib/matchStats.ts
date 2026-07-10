@@ -117,3 +117,55 @@ export function computeRecentPerformance(participants: ParticipantDto[]): Recent
     streak: { result: first ? 'win' : 'loss', count },
   };
 }
+
+export interface ChampionPoolEntry {
+  championName: string;
+  games: number;
+  wins: number;
+  winRatePct: number;
+  kda: number | null;
+  csPerMin: number | null;
+}
+
+export function computeChampionPool(
+  matches: MatchDto[],
+  puuid: string,
+  limit = 4
+): ChampionPoolEntry[] {
+  interface Acc { games: number; wins: number; k: number; d: number; a: number; cs: number; csSeconds: number }
+  const byChampion = new Map<string, Acc>();
+  for (const m of matches) {
+    const part = m.info.participants.find((x) => x.puuid === puuid);
+    if (!part) continue;
+    const acc = byChampion.get(part.championName) ?? { games: 0, wins: 0, k: 0, d: 0, a: 0, cs: 0, csSeconds: 0 };
+    acc.games += 1;
+    if (part.win) acc.wins += 1;
+    acc.k += part.kills; acc.d += part.deaths; acc.a += part.assists;
+    if (part.totalMinionsKilled !== undefined) {
+      acc.cs += part.totalMinionsKilled + (part.neutralMinionsKilled ?? 0);
+      acc.csSeconds += m.info.gameDuration;
+    }
+    byChampion.set(part.championName, acc);
+  }
+  return [...byChampion.entries()]
+    .sort((a, b) => b[1].games - a[1].games)
+    .slice(0, limit)
+    .map(([championName, acc]) => ({
+      championName,
+      games: acc.games,
+      wins: acc.wins,
+      winRatePct: Math.round((acc.wins / acc.games) * 100),
+      kda: Math.round(((acc.k + acc.a) / Math.max(acc.d, 1)) * 100) / 100,
+      csPerMin: acc.csSeconds > 0 ? Math.round((acc.cs / (acc.csSeconds / 60)) * 10) / 10 : null,
+    }));
+}
+
+export function bestChampionIndex(pool: ChampionPoolEntry[]): number {
+  if (pool.length === 0) return -1;
+  let best = -1;
+  for (let i = 0; i < pool.length; i++) {
+    if (pool[i].games < 3) continue;
+    if (best === -1 || pool[i].winRatePct > pool[best].winRatePct) best = i;
+  }
+  return best === -1 ? 0 : best;
+}
