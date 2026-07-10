@@ -64,3 +64,56 @@ export function toMatchSummary(match: MatchDto, puuid: string): MatchSummary {
     gameCreation: match.info.gameCreation,
   };
 }
+
+export interface RecentPerformance {
+  games: number;
+  wins: number;
+  losses: number;
+  winRatePct: number;
+  kdaRatio: number | null;
+  avgKills: number;
+  avgDeaths: number;
+  avgAssists: number;
+  avgKillParticipationPct: number | null;
+  streak: { result: 'win' | 'loss'; count: number } | null;
+}
+
+const round1 = (n: number): number => Math.round(n * 10) / 10;
+
+/** `participants` ordered newest-first (the order the match-id list arrives in). */
+export function computeRecentPerformance(participants: ParticipantDto[]): RecentPerformance {
+  const games = participants.length;
+  if (games === 0) {
+    return {
+      games: 0, wins: 0, losses: 0, winRatePct: 0, kdaRatio: null,
+      avgKills: 0, avgDeaths: 0, avgAssists: 0,
+      avgKillParticipationPct: null, streak: null,
+    };
+  }
+  const wins = participants.filter((p) => p.win).length;
+  const kills = participants.reduce((s, p) => s + p.kills, 0);
+  const deaths = participants.reduce((s, p) => s + p.deaths, 0);
+  const assists = participants.reduce((s, p) => s + p.assists, 0);
+  const kps = participants
+    .map((p) => p.challenges?.killParticipation)
+    .filter((v): v is number => v !== undefined);
+
+  let count = 1;
+  const first = participants[0].win;
+  while (count < games && participants[count].win === first) count++;
+
+  return {
+    games,
+    wins,
+    losses: games - wins,
+    winRatePct: Math.round((wins / games) * 100),
+    kdaRatio: round1((kills + assists) / Math.max(deaths, 1)),
+    avgKills: round1(kills / games),
+    avgDeaths: round1(deaths / games),
+    avgAssists: round1(assists / games),
+    avgKillParticipationPct: kps.length
+      ? Math.round((kps.reduce((a, b) => a + b, 0) / kps.length) * 100)
+      : null,
+    streak: { result: first ? 'win' : 'loss', count },
+  };
+}

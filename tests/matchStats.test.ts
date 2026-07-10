@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { computeTopChampions, toMatchSummary } from '../lib/matchStats';
+import { computeTopChampions, toMatchSummary, computeRecentPerformance } from '../lib/matchStats';
 import type { MatchDto, ParticipantDto } from '../lib/riot/types';
 
 function fakeParticipant(overrides: Partial<ParticipantDto>): ParticipantDto {
@@ -92,5 +92,48 @@ describe('toMatchSummary', () => {
   it('throws when the puuid is not a participant in the match', () => {
     const match = fakeMatch(fakeParticipant({ puuid: 'someone-else' }));
     expect(() => toMatchSummary(match, 'me')).toThrow();
+  });
+});
+
+describe('computeRecentPerformance', () => {
+  function p(over: Partial<ParticipantDto>): ParticipantDto {
+    return {
+      puuid: 'me', riotIdGameName: 'a', riotIdTagline: 'b',
+      championName: 'Aatrox', championId: 266,
+      kills: 5, deaths: 4, assists: 6, win: true, teamId: 100,
+      item0: 0, item1: 0, item2: 0, item3: 0, item4: 0, item5: 0, item6: 0,
+      summoner1Id: 4, summoner2Id: 14,
+      totalDamageDealtToChampions: 20000, visionScore: 20,
+      ...over,
+    };
+  }
+
+  it('aggregates wins, KDA and averages', () => {
+    const result = computeRecentPerformance([
+      p({ kills: 10, deaths: 5, assists: 10, win: true, challenges: { killParticipation: 0.6 } }),
+      p({ kills: 2, deaths: 5, assists: 2, win: false, challenges: { killParticipation: 0.4 } }),
+    ]);
+    expect(result.games).toBe(2);
+    expect(result.wins).toBe(1);
+    expect(result.winRatePct).toBe(50);
+    expect(result.kdaRatio).toBe(2.4); // (12+12)/10
+    expect(result.avgKills).toBe(6);
+    expect(result.avgKillParticipationPct).toBe(50);
+  });
+
+  it('counts streak from the most recent game', () => {
+    const result = computeRecentPerformance([
+      p({ win: true }), p({ win: true }), p({ win: false }),
+    ]);
+    expect(result.streak).toEqual({ result: 'win', count: 2 });
+  });
+
+  it('handles zero deaths and empty input', () => {
+    expect(computeRecentPerformance([p({ kills: 3, deaths: 0, assists: 3 })]).kdaRatio).toBe(6);
+    const empty = computeRecentPerformance([]);
+    expect(empty.games).toBe(0);
+    expect(empty.kdaRatio).toBeNull();
+    expect(empty.streak).toBeNull();
+    expect(empty.avgKillParticipationPct).toBeNull();
   });
 });
