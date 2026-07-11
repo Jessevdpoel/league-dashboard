@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { computeTopChampions, toMatchSummary, computeRecentPerformance, computeChampionPool, bestChampionIndex } from '../lib/matchStats';
+import { computeTopChampions, toMatchSummary, computeRecentPerformance, computeChampionPool, bestChampionIndex, filterByQueue } from '../lib/matchStats';
 import type { MatchDto, ParticipantDto } from '../lib/riot/types';
 
 function fakeParticipant(overrides: Partial<ParticipantDto>): ParticipantDto {
@@ -192,5 +192,18 @@ describe('toMatchSummary extensions', () => {
     expect(summary.role).toBeNull();
     expect(summary.cs).toBeNull();
     expect(summary.badge).toBeNull();
+  });
+});
+
+describe('filterByQueue', () => {
+  const mk = (id: string, queueId: number) =>
+    ({ ...toMatchSummary(match(id, p({})), 'me'), queueId });
+  const all = [mk('a', 420), mk('b', 440), mk('c', 450), mk('d', 490)];
+
+  it('filters by queue id and passes everything for "all"', () => {
+    expect(filterByQueue(all, 'all')).toHaveLength(4);
+    expect(filterByQueue(all, 'solo').map((m) => m.matchId)).toEqual(['a']);
+    expect(filterByQueue(all, 'flex').map((m) => m.matchId)).toEqual(['b']);
+    expect(filterByQueue(all, 'aram').map((m) => m.matchId)).toEqual(['c']);
   });
 });

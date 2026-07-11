@@ -11,6 +11,8 @@ import { RiotApiError } from '@/lib/riot/client';
 import { getLatestDDragonVersion } from '@/lib/dataDragon';
 import { observationsFromMatch, mergeObservations } from '@/lib/riotIdIndex';
 import { upsertRiotIdRows } from '@/lib/riotIdIndexStore';
+import { findAnalyzedMatchIds } from '@/lib/analysis/analysisStore';
+import { PROMPT_VERSION } from '@/lib/analysis/analyzeMatch';
 import { RankCard } from '@/components/RankCard';
 import { RecentFormCard } from '@/components/RecentFormCard';
 import { TopChampionsCard } from '@/components/TopChampionsCard';
@@ -36,7 +38,10 @@ export default async function SummonerProfilePage({
       getMatchIdsByPuuid(platform, account.puuid, { count: 10 }),
       getLatestDDragonVersion(),
     ]);
-    const matches = await Promise.all(matchIds.map((id) => getMatchById(platform, id)));
+    const [matches, analyzedIds] = await Promise.all([
+      Promise.all(matchIds.map((id) => getMatchById(platform, id))),
+      findAnalyzedMatchIds(account.puuid, matchIds, PROMPT_VERSION),
+    ]);
 
     // Feed every Riot ID we just saw into the self-built search index.
     // Runs after the response streams; failures must never affect the page.
@@ -78,7 +83,12 @@ export default async function SummonerProfilePage({
         </div>
         <section>
           <h2 className="text-xl font-bold text-foreground mb-3">Match History</h2>
-          <MatchHistory matches={summaries} version={version} basePath={`/${region}/${riotId}`} />
+          <MatchHistory
+            matches={summaries}
+            version={version}
+            basePath={`/${region}/${riotId}`}
+            analyzedIds={[...analyzedIds]}
+          />
         </section>
       </div>
     );

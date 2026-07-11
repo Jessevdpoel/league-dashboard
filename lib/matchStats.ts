@@ -179,3 +179,12 @@ export function bestChampionIndex(pool: ChampionPoolEntry[]): number {
   }
   return best === -1 ? 0 : best;
 }
+
+export type QueueFilter = 'all' | 'solo' | 'flex' | 'aram';
+
+const QUEUE_IDS: Record<Exclude<QueueFilter, 'all'>, number> = { solo: 420, flex: 440, aram: 450 };
+
+export function filterByQueue(matches: MatchSummary[], filter: QueueFilter): MatchSummary[] {
+  if (filter === 'all') return matches;
+  return matches.filter((m) => m.queueId === QUEUE_IDS[filter]);
+}

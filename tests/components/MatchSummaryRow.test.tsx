@@ -16,6 +16,9 @@ const summary: MatchSummary = {
   durationSeconds: 1530,
   queueId: 420,
   gameCreation: 0,
+  role: 'MIDDLE',
+  cs: 180,
+  badge: 'PENTA KILL',
 };
 
 beforeEach(() => {
@@ -33,18 +36,52 @@ beforeEach(() => {
 
 describe('MatchSummaryRow', () => {
   it('shows the champion icon, KDA, and formatted duration', () => {
-    render(<MatchSummaryRow summary={summary} version="14.23.1" basePath="/euw1/Test-EUW" />);
+    render(
+      <MatchSummaryRow summary={summary} version="14.23.1" basePath="/euw1/Test-EUW" analyzed={false} />
+    );
     expect(screen.getByAltText('Ahri')).toHaveAttribute(
       'src',
       'https://ddragon.leagueoflegends.com/cdn/14.23.1/img/champion/Ahri.png'
     );
-    expect(screen.getByText(/5\/2\/8/)).toBeInTheDocument();
+    expect(screen.getByText(/5 \/.*8/)).toBeInTheDocument();
     expect(screen.getByText(/25:30/)).toBeInTheDocument();
     expect(screen.getByText(/Victory/)).toBeInTheDocument();
   });
 
+  it('shows the role badge abbreviation, CS, and performance badge', () => {
+    render(
+      <MatchSummaryRow summary={summary} version="14.23.1" basePath="/euw1/Test-EUW" analyzed={false} />
+    );
+    expect(screen.getByText('MID')).toBeInTheDocument();
+    expect(screen.getByText(/180 CS/)).toBeInTheDocument();
+    expect(screen.getByText('PENTA KILL')).toBeInTheDocument();
+  });
+
+  it('falls back to the raw role string for an unrecognized role', () => {
+    const oddRole: MatchSummary = { ...summary, role: 'WEIRD' };
+    render(
+      <MatchSummaryRow summary={oddRole} version="14.23.1" basePath="/euw1/Test-EUW" analyzed={false} />
+    );
+    expect(screen.getByText('WEIRD')).toBeInTheDocument();
+  });
+
+  it('shows an Analyze CTA when unanalyzed and an Analyzed CTA when analyzed', () => {
+    const { rerender } = render(
+      <MatchSummaryRow summary={summary} version="14.23.1" basePath="/euw1/Test-EUW" analyzed={false} />
+    );
+    expect(screen.getByRole('link', { name: /Analyze/ })).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /Analyzed/ })).not.toBeInTheDocument();
+
+    rerender(
+      <MatchSummaryRow summary={summary} version="14.23.1" basePath="/euw1/Test-EUW" analyzed={true} />
+    );
+    expect(screen.getByRole('link', { name: /Analyzed/ })).toBeInTheDocument();
+  });
+
   it('fetches and shows the full scoreboard when expanded', async () => {
-    render(<MatchSummaryRow summary={summary} version="14.23.1" basePath="/euw1/Test-EUW" />);
+    render(
+      <MatchSummaryRow summary={summary} version="14.23.1" basePath="/euw1/Test-EUW" analyzed={false} />
+    );
     fireEvent.click(screen.getByRole('button'));
     await waitFor(() => expect(fetch).toHaveBeenCalledWith('/api/matches/NA1_1'));
     await waitFor(() => expect(screen.getByText('Blue Team')).toBeInTheDocument());
