@@ -34,7 +34,7 @@ function Sparkline({ series }: { series: number[] }) {
             width={barWidth - 1}
             height={height}
             rx={0.8}
-            className={isLast ? 'fill-gold' : 'fill-coach/70'}
+            className={isLast ? 'fill-gold' : 'fill-muted-foreground/40'}
           />
         );
       })}
