@@ -77,7 +77,7 @@ export function MatchSummaryRow({ summary, version, basePath, analyzed }: MatchS
               }}
             />
             {summary.role && (
-              <span className="absolute -bottom-1.5 -right-1.5 rounded border border-panel-border bg-panel-2 px-1 text-[8px] font-extrabold text-coach-light">
+              <span className="absolute -bottom-1.5 -right-1.5 rounded border border-panel-border bg-panel-2 px-1 text-[8px] font-extrabold text-muted-foreground">
                 {ROLE_LABEL[summary.role] ?? summary.role}
               </span>
             )}
@@ -127,7 +127,7 @@ export function MatchSummaryRow({ summary, version, basePath, analyzed }: MatchS
           href={`${basePath}/match/${summary.matchId}/analysis`}
           className={`flex items-center rounded-xl border px-3.5 text-xs font-extrabold ${
             analyzed
-              ? 'border-win/40 bg-win/5 text-win'
+              ? 'border-panel-border bg-panel-2 text-muted-foreground'
               : 'border-gold/45 bg-gold/5 text-gold-light hover:border-gold/70'
           }`}
         >
