@@ -13,7 +13,7 @@ export function CoachStrip({ insights }: { insights: CoachInsight[] }) {
           <li
             key={insight.message}
             className={`whitespace-nowrap rounded-full border border-panel-border bg-panel-2 px-3 py-1.5 text-xs font-semibold ${
-              insight.good ? 'text-win' : 'text-foreground/80'
+              insight.good ? 'text-coach-light' : 'text-foreground/80'
             }`}
           >
             {insight.message}

@@ -24,6 +24,11 @@ export function isBenchmarkableTier(tier: string): boolean {
   return COHORT_TIERS.includes(cohortTier(tier));
 }
 
+/** Human-readable label for a cohort key, for user-facing text. Pass-through except MASTER_PLUS. */
+export function cohortDisplayLabel(cohortKey: string): string {
+  return cohortKey === MASTER_PLUS ? 'Master+' : cohortKey;
+}
+
 /** Numeric segment comparator for patch strings like "26.13" ("26.9" < "26.13"). */
 export function comparePatches(a: string, b: string): number {
   const as = a.split('.').map(Number);

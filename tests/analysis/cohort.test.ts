@@ -1,5 +1,11 @@
 import { describe, it, expect } from 'vitest';
-import { cohortTier, isBenchmarkableTier, comparePatches, COHORT_TIERS } from '../../lib/analysis/cohort';
+import {
+  cohortTier,
+  isBenchmarkableTier,
+  comparePatches,
+  cohortDisplayLabel,
+  COHORT_TIERS,
+} from '../../lib/analysis/cohort';
 
 describe('cohortTier', () => {
   it('passes normal tiers through uppercased', () => {
@@ -23,6 +29,16 @@ describe('isBenchmarkableTier', () => {
   it('rejects UNRANKED and garbage', () => {
     expect(isBenchmarkableTier('UNRANKED')).toBe(false);
     expect(isBenchmarkableTier('')).toBe(false);
+  });
+});
+
+describe('cohortDisplayLabel', () => {
+  it('maps MASTER_PLUS to the human-readable Master+', () => {
+    expect(cohortDisplayLabel('MASTER_PLUS')).toBe('Master+');
+  });
+  it('passes every other cohort key through unchanged', () => {
+    expect(cohortDisplayLabel('DIAMOND')).toBe('DIAMOND');
+    expect(cohortDisplayLabel('GOLD')).toBe('GOLD');
   });
 });
 

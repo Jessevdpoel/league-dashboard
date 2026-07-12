@@ -15,7 +15,7 @@ import { RiotApiError } from '@/lib/riot/client';
 import { getLatestDDragonVersion, patchFromVersion } from '@/lib/dataDragon';
 import { observationsFromMatch, mergeObservations } from '@/lib/riotIdIndex';
 import { upsertRiotIdRows } from '@/lib/riotIdIndexStore';
-import { cohortTier, isBenchmarkableTier } from '@/lib/analysis/cohort';
+import { cohortTier, cohortDisplayLabel, isBenchmarkableTier } from '@/lib/analysis/cohort';
 import { loadBenchmarkLookup } from '@/lib/analysis/benchmarkStore';
 import { prismaBenchmarkReader } from '@/lib/analysis/benchmarkDb';
 import {
@@ -122,7 +122,7 @@ export default async function SummonerProfilePage({
               prismaBenchmarkReader
             );
             if (lookup) {
-              insights = deriveCoachInsights(participants, lookup, rankTier);
+              insights = deriveCoachInsights(participants, lookup, cohortDisplayLabel(rankTier));
               skillScores = profileSkillScores(participants, lookup);
             }
           }
