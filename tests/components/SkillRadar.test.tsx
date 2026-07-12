@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import { SkillRadar, radarData } from '@/components/analysis/SkillRadar';
+import { SkillRadar } from '@/components/analysis/SkillRadar';
+import { radarData } from '@/lib/analysis/radarData';
 
 describe('radarData', () => {
   it('maps all four categories in fixed order with labels', () => {

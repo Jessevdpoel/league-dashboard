@@ -8,26 +8,7 @@ import {
   type ChartConfig,
 } from '@/components/ui/chart';
 import type { MetricCategory } from '@/lib/analysis/metrics';
-
-const CATEGORY_LABELS: ReadonlyArray<[MetricCategory, string]> = [
-  ['laning', 'Laning'],
-  ['vision', 'Vision'],
-  ['fighting', 'Fighting'],
-  ['survivability', 'Survivability'],
-];
-
-/** Null when any category lacks a score — a partial radar shape misleads. */
-export function radarData(
-  scores: Record<MetricCategory, number | null>
-): Array<{ skill: string; score: number }> | null {
-  const data: Array<{ skill: string; score: number }> = [];
-  for (const [category, label] of CATEGORY_LABELS) {
-    const score = scores[category];
-    if (score === null) return null;
-    data.push({ skill: label, score });
-  }
-  return data;
-}
+import { radarData } from '@/lib/analysis/radarData';
 
 const chartConfig = {
   score: { label: 'Score', color: 'var(--chart-1)' },
