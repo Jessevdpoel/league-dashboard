@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { computeTopChampions, toMatchSummary, computeRecentPerformance, computeChampionPool, bestChampionIndex, filterByQueue } from '../lib/matchStats';
+import { toMatchSummary, computeRecentPerformance, computeChampionPool, bestChampionIndex, filterByQueue } from '../lib/matchStats';
 import type { MatchDto, ParticipantDto } from '../lib/riot/types';
 
 function fakeParticipant(overrides: Partial<ParticipantDto>): ParticipantDto {
@@ -28,28 +28,6 @@ function fakeParticipant(overrides: Partial<ParticipantDto>): ParticipantDto {
     ...overrides,
   };
 }
-
-describe('computeTopChampions', () => {
-  it('aggregates games and wins per champion, sorted by games descending', () => {
-    const participants = [
-      fakeParticipant({ championName: 'Ahri', win: true }),
-      fakeParticipant({ championName: 'Ahri', win: false }),
-      fakeParticipant({ championName: 'Lux', win: true }),
-    ];
-    const result = computeTopChampions(participants, 5);
-    expect(result[0]).toEqual({ championName: 'Ahri', games: 2, wins: 1 });
-    expect(result[1]).toEqual({ championName: 'Lux', games: 1, wins: 1 });
-  });
-
-  it('respects the limit', () => {
-    const participants = [
-      fakeParticipant({ championName: 'Ahri' }),
-      fakeParticipant({ championName: 'Lux' }),
-      fakeParticipant({ championName: 'Zed' }),
-    ];
-    expect(computeTopChampions(participants, 2)).toHaveLength(2);
-  });
-});
 
 describe('toMatchSummary', () => {
   function fakeMatch(participant: ParticipantDto): MatchDto {

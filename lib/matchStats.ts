@@ -1,27 +1,6 @@
 import type { MatchDto, ParticipantDto } from './riot/types';
 import { performanceBadge } from './matchBadges';
 
-export interface ChampionStat {
-  championName: string;
-  games: number;
-  wins: number;
-}
-
-export function computeTopChampions(participants: ParticipantDto[], limit = 3): ChampionStat[] {
-  const byChampion = new Map<string, ChampionStat>();
-  for (const participant of participants) {
-    const existing = byChampion.get(participant.championName) ?? {
-      championName: participant.championName,
-      games: 0,
-      wins: 0,
-    };
-    existing.games += 1;
-    if (participant.win) existing.wins += 1;
-    byChampion.set(participant.championName, existing);
-  }
-  return [...byChampion.values()].sort((a, b) => b.games - a.games).slice(0, limit);
-}
-
 export interface MatchSummary {
   matchId: string;
   championName: string;
