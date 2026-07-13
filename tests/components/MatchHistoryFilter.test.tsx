@@ -19,6 +19,7 @@ describe('MatchHistory queue filters', () => {
         version="14.13.1"
         basePath="/euw1/x-y"
         analyzedIds={[]}
+        viewerPuuid="viewer-puuid"
       />
     );
     fireEvent.click(screen.getByRole('button', { name: 'ARAM' }));

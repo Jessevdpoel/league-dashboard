@@ -18,9 +18,11 @@ export interface MatchHistoryProps {
   basePath: string;
   /** Match ids that already have a stored AI analysis. */
   analyzedIds: string[];
+  /** Profile owner's puuid — their rows get highlighted in the detail view. */
+  viewerPuuid: string;
 }
 
-export function MatchHistory({ matches, version, basePath, analyzedIds }: MatchHistoryProps) {
+export function MatchHistory({ matches, version, basePath, analyzedIds, viewerPuuid }: MatchHistoryProps) {
   const [filter, setFilter] = useState<QueueFilter>('all');
   const analyzed = new Set(analyzedIds);
   const visible = filterByQueue(matches, filter);
@@ -58,6 +60,7 @@ export function MatchHistory({ matches, version, basePath, analyzedIds }: MatchH
             version={version}
             basePath={basePath}
             analyzed={analyzed.has(m.matchId)}
+            viewerPuuid={viewerPuuid}
           />
         ))}
       </ul>

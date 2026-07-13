@@ -42,14 +42,28 @@ describe('MatchHistory', () => {
       },
     ];
     render(
-      <MatchHistory matches={matches} version="14.23.1" basePath="/euw1/Test-EUW" analyzedIds={[]} />
+      <MatchHistory
+        matches={matches}
+        version="14.23.1"
+        basePath="/euw1/Test-EUW"
+        analyzedIds={[]}
+        viewerPuuid="viewer-puuid"
+      />
     );
     // 4 filter pills + one row button per match.
     expect(screen.getAllByRole('button')).toHaveLength(4 + matches.length);
   });
 
   it('shows an empty state with no matches', () => {
-    render(<MatchHistory matches={[]} version="14.23.1" basePath="/euw1/Test-EUW" analyzedIds={[]} />);
+    render(
+      <MatchHistory
+        matches={[]}
+        version="14.23.1"
+        basePath="/euw1/Test-EUW"
+        analyzedIds={[]}
+        viewerPuuid="viewer-puuid"
+      />
+    );
     expect(screen.getByText('No recent matches found.')).toBeInTheDocument();
   });
 
@@ -77,6 +91,7 @@ describe('MatchHistory', () => {
         version="14.23.1"
         basePath="/euw1/Test-EUW"
         analyzedIds={['NA1_1']}
+        viewerPuuid="viewer-puuid"
       />
     );
     expect(screen.getByRole('link', { name: /Analyzed/ })).toBeInTheDocument();

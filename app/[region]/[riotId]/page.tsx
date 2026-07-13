@@ -156,6 +156,7 @@ export default async function SummonerProfilePage({
             version={version}
             basePath={`/${region}/${riotId}`}
             analyzedIds={analyzedIds}
+            viewerPuuid={account.puuid}
           />
         </div>
       </div>

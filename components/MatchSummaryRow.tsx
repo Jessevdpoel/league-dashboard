@@ -3,9 +3,9 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import type { MatchSummary } from '@/lib/matchStats';
-import type { MatchDto } from '@/lib/riot/types';
+import type { MatchDetailPayload } from '@/lib/matchDetail';
 import { championIconUrl, itemIconUrl } from '@/lib/dataDragon';
-import { MatchScoreboard } from './MatchScoreboard';
+import { MatchFaceOff } from '@/components/match/MatchFaceOff';
 
 export interface MatchSummaryRowProps {
   summary: MatchSummary;
@@ -14,6 +14,8 @@ export interface MatchSummaryRowProps {
   basePath: string;
   /** Whether a stored AI analysis already exists for this match. */
   analyzed: boolean;
+  /** Profile owner's puuid — highlighted in the expanded detail. */
+  viewerPuuid: string;
 }
 
 function formatDuration(seconds: number): string {
@@ -32,9 +34,9 @@ const ROLE_LABEL: Record<string, string> = {
   TOP: 'TOP', JUNGLE: 'JG', MIDDLE: 'MID', BOTTOM: 'BOT', UTILITY: 'SUP',
 };
 
-export function MatchSummaryRow({ summary, version, basePath, analyzed }: MatchSummaryRowProps) {
+export function MatchSummaryRow({ summary, version, basePath, analyzed, viewerPuuid }: MatchSummaryRowProps) {
   const [expanded, setExpanded] = useState(false);
-  const [detail, setDetail] = useState<MatchDto | null>(null);
+  const [detail, setDetail] = useState<MatchDetailPayload | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -48,9 +50,9 @@ export function MatchSummaryRow({ summary, version, basePath, analyzed }: MatchS
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(`/api/matches/${summary.matchId}`);
+      const response = await fetch(`/api/matches/${summary.matchId}?ranks=1`);
       if (!response.ok) throw new Error('Failed to load match detail');
-      setDetail((await response.json()) as MatchDto);
+      setDetail((await response.json()) as MatchDetailPayload);
     } catch {
       setError('Could not load full match detail. Try again.');
     } finally {
@@ -142,7 +144,15 @@ export function MatchSummaryRow({ summary, version, basePath, analyzed }: MatchS
               {error}
             </p>
           )}
-          {detail && <MatchScoreboard match={detail} version={version} />}
+          {detail && (
+            <MatchFaceOff
+              match={detail.match}
+              grades={detail.grades}
+              ranks={detail.ranks}
+              version={version}
+              viewerPuuid={viewerPuuid}
+            />
+          )}
         </div>
       )}
     </li>
