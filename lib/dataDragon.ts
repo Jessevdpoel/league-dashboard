@@ -2,7 +2,6 @@ import { summonerSpellKey } from './riot/summonerSpells';
 
 const FALLBACK_VERSION = '14.23.1';
 const DDRAGON_BASE = 'https://ddragon.leagueoflegends.com';
-const COMMUNITY_DRAGON_BASE = 'https://raw.communitydragon.org/latest';
 
 export async function getLatestDDragonVersion(fetchImpl: typeof fetch = fetch): Promise<string> {
   try {
@@ -32,8 +31,13 @@ export function summonerSpellIconUrl(version: string, spellId: number): string |
   return `${DDRAGON_BASE}/cdn/${version}/img/spell/${key}.png`;
 }
 
+/**
+ * Rank emblems are vendored in public/ranked-emblems (Riot's official
+ * ranked-emblems-latest.zip, resized to 128px) because hotlinking the
+ * Community Dragon CDN proved unreliable and broke every emblem site-wide.
+ */
 export function rankEmblemUrl(tier: string): string {
-  return `${COMMUNITY_DRAGON_BASE}/plugins/rcp-fe-lol-static-assets/global/default/images/ranked-emblems/emblem-${tier.toLowerCase()}.png`;
+  return `/ranked-emblems/${tier.toLowerCase()}.png`;
 }
 
 export function profileIconUrl(version: string, profileIconId: number): string {

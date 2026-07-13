@@ -64,10 +64,8 @@ describe('summonerSpellIconUrl', () => {
 });
 
 describe('rankEmblemUrl', () => {
-  it('builds the rank emblem URL with a lowercased tier, via Community Dragon "latest"', () => {
-    expect(rankEmblemUrl('CHALLENGER')).toBe(
-      'https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/images/ranked-emblems/emblem-challenger.png'
-    );
+  it('builds a local vendored emblem path with a lowercased tier', () => {
+    expect(rankEmblemUrl('CHALLENGER')).toBe('/ranked-emblems/challenger.png');
   });
 });
 

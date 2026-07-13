@@ -80,9 +80,17 @@ export function RankPanel({
       )}
       <div className="mt-4 flex items-center justify-between border-t border-dashed border-panel-border pt-3 text-xs font-bold">
         <span className="text-muted-foreground">Ranked Flex</span>
-        <span className="text-foreground">
-          {flex ? `${titleCase(flex.tier)} ${APEX.has(flex.tier) ? '' : flex.rank} · ${flex.leaguePoints} LP · ${entryLine(flex)}` : 'Unranked'}
-        </span>
+        {flex ? (
+          <span className="flex items-center gap-1.5">
+            <IconImg src={rankEmblemUrl(flex.tier)} alt={`${flex.tier} emblem`} className="h-5 w-5" />
+            <span className="text-foreground">
+              {titleCase(flex.tier)} {APEX.has(flex.tier) ? '' : flex.rank} · {flex.leaguePoints} LP
+            </span>
+            <span className="text-muted-foreground">· {entryLine(flex)}</span>
+          </span>
+        ) : (
+          <span className="text-foreground">Unranked</span>
+        )}
       </div>
     </Panel>
   );
