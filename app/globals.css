@@ -79,6 +79,15 @@ body {
   @apply bg-background text-foreground font-sans;
 }
 
+/* Tailwind v4 preflight no longer sets cursor: pointer on buttons (v3 did).
+   Restore it for enabled interactive controls site-wide. */
+@layer base {
+  button:not(:disabled),
+  [role='button']:not(:disabled) {
+    cursor: pointer;
+  }
+}
+
 .summit-bg {
   background:
     radial-gradient(1000px 500px at 75% -15%, rgba(88, 101, 242, 0.14), transparent 55%),
