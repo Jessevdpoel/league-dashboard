@@ -10,6 +10,7 @@ function p(over: Partial<ParticipantDto>): ParticipantDto {
     item0: 0, item1: 0, item2: 0, item3: 0, item4: 0, item5: 0, item6: 0,
     summoner1Id: 4, summoner2Id: 14,
     totalDamageDealtToChampions: 20000, visionScore: 20,
+    champLevel: 15, goldEarned: 10_000, totalDamageTaken: 15_000,
     ...over,
   };
 }

@@ -23,6 +23,7 @@ function participant(overrides: Partial<ParticipantDto>): ParticipantDto {
     summoner2Id: 12,
     totalDamageDealtToChampions: 0,
     visionScore: 0,
+    champLevel: 15, goldEarned: 10_000, totalDamageTaken: 15_000,
     ...overrides,
   };
 }

@@ -22,6 +22,7 @@ function mkParticipant(i: number): ParticipantDto {
     summoner2Id: 12,
     totalDamageDealtToChampions: 10_000,
     visionScore: 20,
+    champLevel: 15, goldEarned: 10_000, totalDamageTaken: 15_000,
     challenges: { laneMinionsFirst10Minutes: 60 + i, killParticipation: 0.5 },
   };
 }

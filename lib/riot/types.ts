@@ -71,11 +71,31 @@ export interface ParticipantDto {
   summoner2Id: number;
   totalDamageDealtToChampions: number;
   visionScore: number;
+  champLevel: number;
+  goldEarned: number;
+  totalDamageTaken: number;
+  wardsPlaced?: number;
+  wardsKilled?: number;
+  detectorWardsPlaced?: number;
+  damageDealtToObjectives?: number;
   totalMinionsKilled?: number;
   neutralMinionsKilled?: number;
   largestMultiKill?: number;
   firstBloodKill?: boolean;
   challenges?: ChallengesDto;
+}
+
+/** Match-V5 team object — only the objective counts the scoreboard shows. */
+export interface TeamDto {
+  teamId: number;
+  win: boolean;
+  objectives: {
+    baron: { kills: number };
+    dragon: { kills: number };
+    riftHerald: { kills: number };
+    tower: { kills: number };
+    champion: { kills: number };
+  };
 }
 
 export interface MatchDto {
@@ -87,6 +107,7 @@ export interface MatchDto {
     gameCreation: number;
     gameDuration: number;
     queueId: number;
+    teams?: TeamDto[];
     participants: ParticipantDto[];
   };
 }

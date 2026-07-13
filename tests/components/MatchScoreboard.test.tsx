@@ -26,6 +26,9 @@ function fakeParticipant(overrides: Partial<ParticipantDto>): ParticipantDto {
     summoner2Id: 7,
     totalDamageDealtToChampions: 1000,
     visionScore: 10,
+    champLevel: 15,
+    goldEarned: 10_000,
+    totalDamageTaken: 15_000,
     ...overrides,
   };
 }

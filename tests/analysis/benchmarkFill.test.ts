@@ -24,6 +24,7 @@ function mkParticipant(i: number, matchId: string): ParticipantDto {
     teamPosition: ROLES[i % 5],
     item0: 0, item1: 0, item2: 0, item3: 0, item4: 0, item5: 0, item6: 0,
     summoner1Id: 4, summoner2Id: 12, totalDamageDealtToChampions: 10_000, visionScore: 20,
+    champLevel: 15, goldEarned: 10_000, totalDamageTaken: 15_000,
     challenges: { laneMinionsFirst10Minutes: 60 },
   };
 }

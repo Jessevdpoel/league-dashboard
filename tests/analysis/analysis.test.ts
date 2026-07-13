@@ -29,6 +29,9 @@ function mkParticipant(over: Partial<ParticipantDto> & Pick<ParticipantDto, 'puu
     summoner2Id: 14,
     totalDamageDealtToChampions: 20000,
     visionScore: 20,
+    champLevel: 15,
+    goldEarned: 10_000,
+    totalDamageTaken: 15_000,
     ...over,
   };
 }
